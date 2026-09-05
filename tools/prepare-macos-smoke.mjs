@@ -44,7 +44,10 @@ const apps = (await fs.readdir(applicationDirectory, { withFileTypes: true })).f
 if (apps.length !== 1) throw new Error('Expected one downloaded application bundle');
 const bundle = path.join(applicationDirectory, apps[0].name);
 const appRoot = await fs.realpath(path.join(bundle, 'Contents', 'Resources', 'app'));
-const executable = path.join(bundle, 'Contents', 'MacOS', 'Electron');
+const { stdout: executableEntry } = await promisify(execFile)('/usr/libexec/PlistBuddy', ['-c', 'Print :CFBundleExecutable', path.join(bundle, 'Contents', 'Info.plist')]);
+const executableName = executableEntry.trim();
+if (!executableName || path.basename(executableName) !== executableName) throw new Error('Invalid bundle executable name');
+const executable = await fs.realpath(path.join(bundle, 'Contents', 'MacOS', executableName));
 const vsix = path.join(directory, `ocean-window-${version}.vsix`);
 const release = `https://github.com/zeusu-sato/ocean-window/releases/download/v${version}`;
 const checksums = await (await response(`${release}/SHA256SUMS.txt`)).text();
