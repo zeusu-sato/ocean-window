@@ -6,7 +6,7 @@ Version **0.3.0** replaces application-file patching with a standard Webview sce
 
 The universal package targets regular VS Code and Insiders **1.130 or later** on Windows, Linux, Intel Macs, and Apple Silicon Macs. VS Code for the Web is currently unsupported.
 
-**At this documentation checkpoint, final 0.3.0 packaging and publication are still in progress.** The candidate has passed the Linux Webview checks below. The historical 0.2.x results are recorded separately and do not verify the new tab lifecycle on other platforms. Final distribution checks will be recorded here before publication is reported as complete.
+The final 0.3.0 package has passed native Linux and Windows checks, and the same source passed the four native Mac combinations below. Marketplace validation is in progress. The historical 0.2.x results are recorded separately.
 
 The [Marketplace listing](https://marketplace.visualstudio.com/items?itemName=zeusu-sato.ocean-window), [GitHub releases](https://github.com/zeusu-sato/ocean-window/releases), and [source repository](https://github.com/zeusu-sato/ocean-window) retain their existing locations. Publisher **zeusu-sato**, displayed as **Zeusu Sato**, uses [dorodango.biz](https://dorodango.biz) as its publisher homepage.
 
@@ -26,11 +26,21 @@ The 0.3 package retains a legacy native restoration module and uninstall hook so
 
 ## 0.3.0 Linux Webview verification
 
-The candidate passed **13 checks each** in actual Linux x64 VS Code **1.130.0 stable** and **1.137.0 Insiders**, running as ordinary UID 1000 against root-owned application installations. Native write probes returned `EACCES`, while automatic scene display, online photograph loading, code/Markdown/image editors, return to the empty editor, chat focus, saved pause state, settings changes, manual dismissal, and turning the scene off all passed.
+The final VSIX passed **14 checks each** in actual Linux x64 VS Code **1.130.0 stable** and **1.137.0 Insiders**, running as ordinary UID 1000 against root-owned application installations. Native write probes returned `EACCES`, while automatic scene display, online photograph loading, code/Markdown/image editors, return to the empty editor, chat focus, saved pause state, settings changes, manual dismissal, and turning the scene off all passed. Native application and extension-host logs contained no disposed-webview errors.
 
 The workbench HTML and directory contents remained unchanged. These checks validate the standard extension in a Linux desktop host under Ubuntu/WSL, rather than a Windows UI connected to a WSL workspace. The exact historical 1.130.0-insider binary remains unavailable; the lower-version test uses 1.130 stable.
 
 The legacy migration and uninstall tests also passed **40 Node tests**, covering read-only inspection, clean failed-enable receipts, manual old patches, recovery state, and uninstall behavior.
+
+The full Windows regression run passed **70 Node tests and seven browser tests**, with one POSIX case skipped. The final controller changes were checked again with its nine lifecycle tests. The tested universal VSIX is 60,350 bytes with SHA-256 `c949c51e0e43a5ad254c92b3e3857eaf44773f4ff43bb14098f1a7150c5d17d8`. The reproducible native Linux checks are in `tools/webview-linux-smoke.mjs`; they use an isolated helper extension from `tools/webview-smoke-driver.cjs` only for testing.
+
+## 0.3.0 Windows and Mac Webview verification
+
+The final VSIX passed **12 checks** on native Windows x64 VS Code Insiders **1.137.0**, including online photograph loading, code/Markdown/image exclusion, automatic return with chat focus preserved, saved photograph and pause state, live settings, manual dismissal, and disable/enable. Its native workbench HTML and directory were unchanged. The test used an owned private application and a fresh profile.
+
+The source at `fd6fa1a` also passed **13 checks in each of four macOS 15 combinations**: Intel x64 and Apple Silicon arm64, each running regular VS Code **1.136.1** and Insiders **1.137.0**. Besides the scene/file lifecycle, these checks stop the native application and start a new process with the same profile and workspace, verifying the saved photo, pause state, and next shuffle choice. All four applications retained their original workbench HTML and directory contents. [Mac Webview verification run](https://github.com/zeusu-sato/ocean-window/actions/runs/33971066169).
+
+Those Mac candidates were built from the checked-out source on each runner; their ZIP hashes differ from the Windows-packaged release artifact. The release-triggered workflow checks the exact published VSIX separately. Windows/Linux ARM and WSL/Remote SSH workspace combinations remain unverified.
 
 ## Legacy migration
 

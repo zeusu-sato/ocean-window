@@ -16,7 +16,9 @@ If you previously applied 0.2.x's native wallpaper, run **Restore Legacy Native 
 
 ## Validation history
 
-The 0.3 Webview rewrite requires its own validation; see [current results and publication status](publication.md). The following evidence is specifically for the older native 0.2.1 implementation.
+The 0.3 Webview rewrite passed **13 checks per combination** on macOS 15: Intel x64 and Apple Silicon arm64, each with regular VS Code 1.136.1 and Insiders 1.137.0. Checks covered automatic scenery, code/Markdown/image editors, chat focus, live settings, manual dismissal, on/off commands, and a new native process restoring the same photograph, pause state, and next shuffle choice. Native workbench files remained unchanged. [0.3 source-candidate run](https://github.com/zeusu-sato/ocean-window/actions/runs/33971066169), [current artifact and publication status](publication.md).
+
+The following evidence is specifically for the older native 0.2.1 implementation.
 
 The published 0.2.1 VSIX was tested on actual macOS 15 runners using official VS Code builds:
 
