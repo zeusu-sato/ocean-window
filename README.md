@@ -4,7 +4,7 @@ A quiet view of the world's oceans, only while your VS Code editor is empty.
 
 何も開いていないエリアを、世界の海が見える窓に。コードや Markdown を開けば、いつもの作業画面に戻ります。
 
-[Download the Windows x64 preview](https://github.com/zeusu-sato/ocean-window/releases/download/v0.2.0/ocean-window-0.2.0-win32-x64.vsix) · [Release notes](https://github.com/zeusu-sato/ocean-window/releases/tag/v0.2.0) · [Full guide](extension/README.md) · [Issues](https://github.com/zeusu-sato/ocean-window/issues)
+[Install from VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=zeusu-sato.ocean-window) · [Download Windows x64 VSIX](https://github.com/zeusu-sato/ocean-window/releases/download/v0.2.0/ocean-window-0.2.0-win32-x64.vsix) · [Release notes](https://github.com/zeusu-sato/ocean-window/releases/tag/v0.2.0) · [Full guide](extension/README.md) · [Issues](https://github.com/zeusu-sato/ocean-window/issues)
 
 ![Browser layout preview showing a narrow ocean scene beside the work area](docs/ocean-window-preview.png)
 
@@ -12,14 +12,13 @@ Browser layout preview using the actual wallpaper renderer. Photograph: [Matira 
 
 ## Install the preview
 
-1. Download `ocean-window-0.2.0-win32-x64.vsix` from the link above.
-2. In VS Code, open Extensions, choose **… → Install from VSIX…**, and select the file.
-3. Open the Command Palette and run **Ocean Window: Enable / Apply Ocean Wallpaper**.
-4. Read the customization notice, enable it, and reload the window when your running work is ready.
+1. Install **Ocean Window** by **Zeusu Sato** from the Marketplace link above. Alternatively, download the VSIX and use **Extensions → … → Install from VSIX…**.
+2. Open the Command Palette and run **Ocean Window: Enable / Apply Ocean Wallpaper**.
+3. Read the customization notice, enable it, and reload the window when your running work is ready.
 
 **Experimental: Ocean Window changes VS Code's installed workbench HTML and triggers its integrity warning.** It preserves the existing Content Security Policy and integrity checks. Installing the extension alone does not apply the wallpaper. The change affects every window and profile using that VS Code installation and may need reapplication after VS Code updates.
 
-This preview targets Windows x64 and has been tested with VS Code Insiders 1.137.0. Stable builds and other platforms are not yet verified. The extension is available from GitHub. It has also been submitted to the VS Code Marketplace and is awaiting Microsoft's verification; see the [publication status](docs/publication.md).
+This preview targets Windows x64 and has been tested with VS Code Insiders 1.137.0. Stable builds and other platforms are not yet verified. Version 0.2.0 is published on the VS Code Marketplace and GitHub; see the [publication status](docs/publication.md).
 
 ## A different sea outside your editor
 
@@ -39,7 +38,7 @@ If you installed the earlier `ocean-window-local.ocean-window` preview: restore 
 
 ## 日本語で使う
 
-上のリンクから VSIX をダウンロードし、拡張機能画面の **… → VSIX からのインストール…** で選択します。コマンドパレットで **Ocean Window: 海の壁紙を有効化・設定を適用** を実行し、説明を確認してから、作業が落ち着いたタイミングでウィンドウを再読み込みしてください。
+Marketplace から **Ocean Window（Zeusu Sato）** をインストールします。GitHub の VSIX を **… → VSIX からのインストール…** で選ぶ方法も使えます。コマンドパレットで **Ocean Window: 海の壁紙を有効化・設定を適用** を実行し、説明を確認してから、作業が落ち着いたタイミングでウィンドウを再読み込みしてください。
 
 VS Code 本体の表示ファイルを変更する実験的な方式なので、整合性警告が出ます。解除するときは **Ocean Window: 元のエディターに戻す** を実行して再読み込みし、その後に拡張を無効化・削除します。旧 `ocean-window-local` 版から移行する場合は、旧版を復元・削除し、VS Code を完全に終了して起動し直してから新版を有効にしてください。
 

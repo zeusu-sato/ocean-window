@@ -4,7 +4,7 @@
 
 Ocean Window `0.2.0` is distributed as a Windows x64 VSIX through the [GitHub prerelease](https://github.com/zeusu-sato/ocean-window/releases/tag/v0.2.0). The asset is named `ocean-window-0.2.0-win32-x64.vsix`. Source and support are hosted at [zeusu-sato/ocean-window](https://github.com/zeusu-sato/ocean-window).
 
-The [Marketplace publisher **zeusu-sato**](https://marketplace.visualstudio.com/publishers/zeusu-sato), displayed as **Zeusu Sato**, is registered with homepage [dorodango.biz](https://dorodango.biz). On 2026-09-05, the same audited VSIX was submitted to the Marketplace with public availability. **Microsoft's package verification is in progress.** The management page currently shows `Verifying`; the public extension page and validated Gallery entry are not yet available.
+The [Marketplace publisher **zeusu-sato**](https://marketplace.visualstudio.com/publishers/zeusu-sato), displayed as **Zeusu Sato**, is registered with homepage [dorodango.biz](https://dorodango.biz). On 2026-09-05, version **0.2.0** passed Microsoft's package verification and became publicly available on the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=zeusu-sato.ocean-window). The public Gallery API returns the validated Windows x64 version, and the public listing displays its Install button.
 
 This is an experimental native customization: it modifies workbench HTML, preserves Content Security Policy and integrity checks, and requires an explicit enable command. The [full guide](../extension/README.md) explains the integrity warning, configuration, and restoration.
 
@@ -36,6 +36,6 @@ Users of the earlier `ocean-window-local.ocean-window` preview must restore it, 
 
 ## Marketplace status
 
-Publication was submitted through the official [publisher management page](https://marketplace.visualstudio.com/manage/publishers/zeusu-sato), following Microsoft's [publishing guide](https://code.visualstudio.com/api/working-with-extensions/publishing-extension). Once validation completes, the intended listing address is `https://marketplace.visualstudio.com/items?itemName=zeusu-sato.ocean-window`. Until then, use the GitHub VSIX above.
+Publication was submitted through the official [publisher management page](https://marketplace.visualstudio.com/manage/publishers/zeusu-sato), following Microsoft's [publishing guide](https://code.visualstudio.com/api/working-with-extensions/publishing-extension). The public Marketplace listing and the GitHub release are both available.
 
-Marketplace acceptance of this native technique remains a review decision. The supported extension API does not provide arbitrary workbench DOM access, as described in its [restrictions](https://code.visualstudio.com/api/extension-capabilities/overview#restrictions). GitHub distribution and successful packaging do not establish Marketplace approval.
+Marketplace publication does not change the native customization mechanism: the supported extension API does not provide arbitrary workbench DOM access, as described in its [restrictions](https://code.visualstudio.com/api/extension-capabilities/overview#restrictions). The extension continues to disclose its workbench changes and expected integrity warning.
