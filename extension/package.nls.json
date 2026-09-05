@@ -1,0 +1,13 @@
+{
+  "extension.description": "A window onto the world's oceans, only while your editor is empty. Experimental native wallpaper.",
+  "command.enable": "Enable / Apply Ocean Wallpaper",
+  "command.disable": "Restore Original Editor",
+  "command.status": "Show Status",
+  "command.settings": "Open Settings",
+  "command.guide": "Open Guide",
+  "setting.interval": "Minutes between photographs. Run Enable / Apply Ocean Wallpaper after changing settings.",
+  "setting.brightness": "Photograph brightness (0–1). Editor text and chat colors are unaffected.",
+  "setting.caption": "Show the location below each photograph.",
+  "setting.refresh": "Hours before refreshing the online photograph catalog.",
+  "setting.count": "Maximum photographs in the online catalog. The available count depends on the source."
+}

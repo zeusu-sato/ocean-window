@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ocean Window — 表示プレビュー</title>
+  <link rel="stylesheet" href="/src/ocean-window.css">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: #101727; color: #ccc; font: 13px 'Segoe UI', sans-serif; }
+    body { display: grid; grid-template-rows: 34px 1fr 25px; }
+    header, footer { padding: 7px 15px; font-size: 11px; color: #9cabc0; }
+    .monaco-workbench { display: grid; grid-template-columns: 48px 235px 1fr; gap: 5px; min-height: 0; }
+    aside { background: #071131; padding: 16px; color: #7287a3; }
+    .part.editor { position: relative; overflow: hidden; border: 1px solid #2b354c; border-radius: 7px; }
+    .content, .editor-group-container { position: relative; height: 100%; }
+    .editor-group-container { background: #000c18; }
+    .editor-group-watermark { padding: 38px 18px; color: #768897; }
+    .document { margin: 0; padding: 20px 12px; font: 13px/1.8 Consolas, monospace; white-space: pre-wrap; color: #d4d4d4; background: #000c18; height: 100%; }
+    .chat { background: #07071f; border: 1px solid #2b354c; border-radius: 7px; padding: 25px; overflow: auto; }
+    h1 { margin-top: 60px; font-weight: 400; font-size: 23px; color: #e2e5ec; }
+    p { line-height: 1.9; max-width: 440px; }
+    .actions { display: flex; gap: 8px; margin-top: 30px; flex-wrap: wrap; }
+    .actions button { background: #18263b; border: 1px solid #34455f; border-radius: 5px; padding: 9px 14px; color: #dce5ed; cursor: pointer; }
+    .hint { color: #8391a7; font-size: 11px; }
+  </style>
+</head>
+<body>
+  <header>OCEAN WINDOW / 表示プレビュー</header>
+  <main class="monaco-workbench">
+    <aside aria-label="Activity bar">≡</aside>
+    <section class="part editor" aria-label="Editor">
+      <div class="content"><div class="editor-group-container empty"><div class="editor-group-watermark">ファイルを開いていないエリア</div></div></div>
+    </section>
+    <section class="chat" aria-label="Chat">
+      <span>Chat</span>
+      <h1>窓の向こうは、世界の海。</h1>
+      <p>何も開いていない間だけ、海の景色を。<br>ファイルを開けば、いつもの作業画面に戻ります。</p>
+      <p>10分ごとに次の海へ。写真にマウスを重ねると、手動切り替え・一時停止・出典のボタンが現れます。</p>
+      <div class="actions">
+        <button id="open-code">コードを開く</button>
+        <button id="open-markdown">Markdownを開く</button>
+        <button id="close-file">ファイルを閉じる</button>
+      </div>
+      <p class="hint">これは表示確認用のページです。実際のVS Codeには空の中央エリアだけに反映されます。</p>
+    </section>
+  </main>
+  <footer>世界の海をオンラインで · 起動時にシャッフル · 音声なし</footer>
+  <script src="/preview/preview.js" defer></script>
+  <script src="/ocean-window.js" defer></script>
+</body>
+</html>

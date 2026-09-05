@@ -1,0 +1,1 @@
+d79b7825deaa520e2f6098c925fe36b6ca893fb66182be248c22fc7e0b8f5fad  ocean-window-0.2.0-win32-x64.vsix

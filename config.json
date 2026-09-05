@@ -1,0 +1,9 @@
+{
+  "enabled": true,
+  "intervalMinutes": 10,
+  "brightness": 0.78,
+  "showCaption": true,
+  "source": "wikimedia",
+  "refreshHours": 24,
+  "targetPhotoCount": 60
+}

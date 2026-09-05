@@ -1,0 +1,122 @@
+[
+  {
+    "id": "saona",
+    "label": "サオナ島",
+    "country": "ドミニカ共和国",
+    "filename": "photos/saona.jpg",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Saona_Island_December_2020.jpg",
+    "author": "Danu Widjajanto",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "position": "64% 50%",
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f0/Saona_Island_December_2020.jpg/1920px-Saona_Island_December_2020.jpg"
+  },
+  {
+    "id": "grace-bay",
+    "label": "グレースベイ",
+    "country": "タークス・カイコス諸島",
+    "filename": "photos/grace-bay.jpg",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Grace_Bay_Beach_Facing_North.jpg",
+    "author": "Coolcaesar",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+    "position": "50% 50%",
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ca/Grace_Bay_Beach_Facing_North.jpg/1920px-Grace_Bay_Beach_Facing_North.jpg"
+  },
+  {
+    "id": "maldives",
+    "label": "エリヤドゥ島",
+    "country": "モルディブ",
+    "filename": "photos/maldives.jpg",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Palm_tree._Eriyadu,_Maldives.jpg",
+    "author": "Ввласенко",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "position": "42% 50%",
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/af/Palm_tree._Eriyadu%2C_Maldives.jpg/1280px-Palm_tree._Eriyadu%2C_Maldives.jpg"
+  },
+  {
+    "id": "seychelles",
+    "label": "ラ・ディーグ島",
+    "country": "セーシェル",
+    "filename": "photos/seychelles.jpg",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Anse_Source_d%27Argent_-_La_Digue_-_Seychelles_-_06.jpg",
+    "author": "NorbertNagel",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "position": "52% 50%",
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/73/Anse_Source_d%27Argent_-_La_Digue_-_Seychelles_-_06.jpg/1920px-Anse_Source_d%27Argent_-_La_Digue_-_Seychelles_-_06.jpg"
+  },
+  {
+    "id": "bora-bora",
+    "label": "ボラボラ島",
+    "country": "フランス領ポリネシア",
+    "filename": "photos/bora-bora.jpg",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Matira_Beach,_Bora_Bora,_French_Polynesia.jpg",
+    "author": "Scott Williams",
+    "license": "CC BY 2.5",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.5",
+    "position": "41% 50%",
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/07/Matira_Beach%2C_Bora_Bora%2C_French_Polynesia.jpg/1920px-Matira_Beach%2C_Bora_Bora%2C_French_Polynesia.jpg"
+  },
+  {
+    "id": "kerama",
+    "label": "慶良間諸島",
+    "country": "日本・沖縄",
+    "filename": "photos/kerama.jpg",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Kerama_Island_-_6081229008.jpg",
+    "author": "SteFou!",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "position": "53% 50%",
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e5/Kerama_Island_-_6081229008.jpg/1920px-Kerama_Island_-_6081229008.jpg"
+  },
+  {
+    "id": "whitehaven",
+    "label": "ホワイトヘブン",
+    "country": "オーストラリア",
+    "filename": "photos/whitehaven.jpg",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Whitehaven_Beach_-_Northern_End.jpg",
+    "author": "Hush Neo",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "position": "42% 50%",
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9f/Whitehaven_Beach_-_Northern_End.jpg/1920px-Whitehaven_Beach_-_Northern_End.jpg"
+  },
+  {
+    "id": "navagio",
+    "label": "ナヴァイオビーチ",
+    "country": "ギリシャ",
+    "filename": "photos/navagio.jpg",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Navagio_beach_Zakynthos.jpg",
+    "author": "kallerna",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "position": "30% 50%",
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d0/Navagio_beach_Zakynthos.jpg/1280px-Navagio_beach_Zakynthos.jpg"
+  },
+  {
+    "id": "lanikai",
+    "label": "ラニカイビーチ",
+    "country": "アメリカ・ハワイ",
+    "filename": "photos/lanikai.jpg",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Lanikai_Beach_12.jpg",
+    "author": "claralieu",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "position": "65% 50%",
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/Lanikai_Beach_12.jpg/1280px-Lanikai_Beach_12.jpg"
+  },
+  {
+    "id": "menorca",
+    "label": "カラ・マカレラ",
+    "country": "スペイン・メノルカ島",
+    "filename": "photos/menorca.jpg",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Cala_Macarella.jpg",
+    "author": "Paul Stephenson",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "position": "60% 50%",
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/24/Cala_Macarella.jpg/1920px-Cala_Macarella.jpg"
+  }
+]
