@@ -30,7 +30,9 @@ assert.equal(path.dirname(executable), path.resolve(appRoot, '../../MacOS'), 'Ex
 assert.ok((await fs.stat(executable)).isFile(), 'The supplied bundle executable must be a regular file');
 assert.ok(!appRoot.startsWith('/Applications/'), 'Use a private downloaded application, not an installed /Applications app');
 await fs.mkdir(output, { recursive: true });
-const stateRoot = await fs.mkdtemp(path.join(output, 'native-smoke-state-'));
+// macOS Unix-domain socket paths are limited to 103 bytes. The repository and
+// artifact paths on hosted runners are too long for VS Code's main IPC socket.
+const stateRoot = await fs.mkdtemp('/tmp/ow-smoke-');
 const profile = path.join(stateRoot, 'profile');
 const extensions = path.join(stateRoot, 'extensions');
 const shared = path.join(stateRoot, 'shared-data');
@@ -61,6 +63,7 @@ const report = {
   package: path.basename(vsix),
   sha256: createHash('sha256').update(await fs.readFile(vsix)).digest('hex'),
   environment: 'Native macOS desktop Electron with isolated application, profile, extensions and shared data',
+  stateRoot,
   cases: []
 };
 const ownedChildren = new Set();
@@ -304,6 +307,7 @@ try {
   report.success = false;
   report.failedStage = stage;
   report.error = String(error.stack || error);
+  if (browser) report.rendererUrls = browser.contexts().flatMap(context => context.pages()).map(candidate => candidate.url());
   if (page && !page.isClosed()) {
     report.ui = await page.locator('body').innerText({ timeout: 3000 }).then(text => text.slice(-10_000), () => 'Unable to read failed renderer');
     await page.screenshot({ path: path.join(output, 'failure.png'), timeout: 3000 }).catch(() => {});
