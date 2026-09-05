@@ -74,3 +74,19 @@ test('cache accepts only Commons photographs and safe source/license URLs', asyn
   assert.equal(h.api.getCached().length, 1);
   assert.equal(h.api.getCached()[0].id, seeds[1].id);
 });
+
+test('exported Commons cache survives a new webview origin without re-fetching and is normalized on import', async () => {
+  const first = harness();
+  const expected = await first.api.load(first.config);
+  const cache = first.api.exportCache();
+  const second = harness({ offline: true });
+  assert.equal(second.api.importCache(cache), true);
+  assert.deepEqual(JSON.parse(JSON.stringify(await second.api.load(second.config))), JSON.parse(JSON.stringify(expected)));
+  assert.equal(second.stats().requests, 0);
+  cache.photos[0].label = 'mutated outside source';
+  assert.notEqual(second.api.getCached()[0].label, cache.photos[0].label);
+  assert.equal(second.api.importCache({ ...cache, fetchedAt: 1_900_000_000_000 }), false);
+  const untrusted = harness();
+  assert.equal(untrusted.api.importCache({ ...cache, photos: [{ ...seeds[0], imageUrl: 'https://example.com/track.jpg' }] }), false);
+  assert.equal(untrusted.api.exportCache(), null);
+});

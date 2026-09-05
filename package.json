@@ -1,13 +1,13 @@
 {
   "name": "ocean-window",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "private": true,
   "description": "World oceans in the empty VS Code editor",
   "type": "module",
   "scripts": {
     "install:ocean": "node tools/install.mjs",
     "uninstall:ocean": "node tools/install.mjs --uninstall",
-    "test": "node --test tools/install.test.mjs tools/source.test.mjs extension/test/extension.test.cjs extension/test/uninstall.test.cjs && playwright test",
+    "test": "node --test tools/install.test.mjs tools/source.test.mjs extension/test/extension.test.cjs extension/test/legacy.test.cjs extension/test/migration.test.cjs extension/test/webview.test.cjs extension/test/uninstall.test.cjs && playwright test",
     "preview": "node tools/preview.mjs",
     "build:extension": "node tools/build-extension.mjs",
     "package:extension": "node tools/build-extension.mjs --package"

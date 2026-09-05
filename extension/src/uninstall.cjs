@@ -3,6 +3,7 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const { pathToFileURL } = require('node:url');
+const { validateReceipts } = require('./legacy.cjs');
 
 async function runUninstall(extensionRoot = path.resolve(__dirname, '..'), loadInstaller) {
   const root = await fs.realpath(extensionRoot);
@@ -42,12 +43,11 @@ async function runUninstall(extensionRoot = path.resolve(__dirname, '..'), loadI
     }
   }
   if (!lock) throw new Error('Cannot acquire restore lock');
-  const report = { restored: 0, skipped: 0, errors: [] };
+  const report = { restored: 0, alreadyClean: 0, skipped: 0, errors: [] };
   try {
     await lock.writeFile(lockText);
     await lock.close();
-    const receipt = JSON.parse(await fs.readFile(receiptPath, 'utf8'));
-    if (receipt.schemaVersion !== 1 || !Array.isArray(receipt.installs)) throw new Error('Invalid restore receipt');
+    const receipt = validateReceipts(JSON.parse(await fs.readFile(receiptPath, 'utf8')));
     const sourceRoot = path.join(root, 'runtime');
     const installer = await (loadInstaller ? loadInstaller() : import(pathToFileURL(path.join(sourceRoot, 'tools', 'install.mjs')).href));
     for (const record of receipt.installs) {
@@ -62,11 +62,21 @@ async function runUninstall(extensionRoot = path.resolve(__dirname, '..'), loadI
         else report.errors.push({ appRoot: record.appRoot, error: error.message });
         continue;
       }
-      try { await installer.runInstall({ sourceRoot, appRoot: record.appRoot, uninstall: true, skipDist: true }); }
+      try {
+        const options = { sourceRoot, appRoot: record.appRoot, uninstall: true, skipDist: true };
+        const plan = await installer.runInstall({ ...options, dryRun: true });
+        if (plan.changed) {
+          await installer.runInstall(options);
+          report.restored++;
+        } else {
+          // 0.2.x wrote pending-enable before attempting native writes. Retire
+          // that receipt without creating a lock in a clean root-owned app.
+          report.alreadyClean++;
+        }
+      }
       catch (error) { report.errors.push({ appRoot: record.appRoot, error: error.message }); continue; }
       record.state = 'disabled';
       record.updatedAt = new Date(Math.max(Date.now(), Date.parse(record.updatedAt) + 1)).toISOString();
-      report.restored++;
       // Persist each successful restore so a hook interrupted by VS Code's timeout can resume.
       const temp = `${receiptPath}.${token}.tmp`;
       try {

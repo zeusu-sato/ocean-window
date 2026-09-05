@@ -1,27 +1,37 @@
 # Support
 
-This is an experimental native wallpaper preview for desktop VS Code 1.130 or later, including Insiders. Version 0.2.1 uses a universal package; version 0.2.0 was restricted to Windows x64 and required VS Code 1.136.
+Ocean Window 0.3 uses the standard Webview API in desktop VS Code 1.130 or later. The universal extension targets Windows, Linux, Intel Macs, and Apple Silicon Macs, with regular VS Code and Insiders.
 
 [Report an issue](https://github.com/zeusu-sato/ocean-window/issues) · [Full guide](https://github.com/zeusu-sato/ocean-window/blob/main/extension/README.md) · [GitHub releases](https://github.com/zeusu-sato/ocean-window/releases)
 
-For a blank or unexpected scene, run **Ocean Window: Show Status** and inspect the **Ocean Window** output channel. Include the VS Code version, operating system, extension version, and the error when reporting an issue. Remove any personal installation paths you do not want to share.
+## The sea is missing
 
-For immediate removal, run **Ocean Window: Restore Original Editor** and reload before disabling or uninstalling the extension. If the extension cannot start, open a terminal in its installed extension directory and run the included restore tool with Node.js:
+Leave an editor group empty and run **Ocean Window: Show Ocean Window**. Files, Markdown previews, settings, and other editors keep that group occupied. Closing the Ocean Window tab temporarily dismisses it; opening and closing a real editor or running Show brings it back.
+
+For a blank or unexpected photograph, use **Next**, check network access to Wikimedia Commons, and run **Ocean Window: Show Status**. Include the VS Code version, operating system, extension version, and error when reporting an issue. Remove personal installation paths you do not want to share. See [validation status](https://github.com/zeusu-sato/ocean-window/blob/main/docs/publication.md).
+
+## Linux permission errors
+
+If an error mentions `workbench.html.ocean-window.lock` or write access to `/usr/share/code-insiders/resources/app`, check that the installed extension is **0.3.0 or later**. Those requirements belonged to the 0.2.x native wallpaper. The new scene does not write to VS Code application files, so it needs no `sudo`, ACL change, or replacement VS Code installation. This applies equally to regular VS Code and Insiders.
+
+If an older failed enable left a recovery receipt but no patch, legacy cleanup and the uninstall hook can retire it without writing to the application. An unrelated error writing VS Code's own user data remains a separate issue; include the full path in a support report.
+
+## Turn off the scene
+
+Run **Ocean Window: Turn Off Ocean Window**. The choice is remembered for the workspace. Disabling or uninstalling the extension also ends its Webview scene through the normal VS Code lifecycle.
+
+## Remove an existing 0.2.x native patch
+
+Only users who successfully applied the old native wallpaper need **Ocean Window: Restore Legacy Native Wallpaper**, followed by one reload of each affected window. The command checks the current application before writing and preserves unrelated edits and the original backup. It does not change permissions. Failed restoration does not prevent the new Webview scene from working.
+
+If the extension cannot start and you need to restore a known old patch, the included Node.js recovery tool remains available from the installed extension directory:
 
 ```
 node runtime/tools/install.mjs --app-root "<VS Code resources/app directory>" --uninstall
 ```
 
-Do not delete or overwrite the whole VS Code installation to remove this wallpaper. The installer retains `workbench.html.ocean-window.bak`, and the restore command removes the marked Ocean Window block while preserving other edits.
+This tool is for legacy recovery, not for showing the 0.3 scene. The old backup is `workbench.html.ocean-window.bak`. Existing Linux ACL changes are described in the [legacy Linux recovery note](https://github.com/zeusu-sato/ocean-window/blob/main/docs/linux-permissions.md).
 
-When moving from `ocean-window-local.ocean-window` to `zeusu-sato.ocean-window`, restore and uninstall the old preview, then completely quit and restart VS Code before enabling the replacement. This allows the old extension's delayed uninstall cleanup to finish first.
+If the separate `ocean-window-local.ocean-window` prototype is still installed, restore and uninstall it as well. Updating the published extension retains the ID `zeusu-sato.ocean-window`; its new Webview is independent of the old native payload.
 
-If Linux reports an incompatible platform or requires VS Code 1.136, check that you are installing **0.2.1 or later**. Use the Marketplace pre-release or the universal VSIX from GitHub.
-
-Installing the extension and applying the native wallpaper are separate steps. Application requires write access to VS Code's `resources/app` directory. System-managed `.deb`/`.rpm` installations may deny this, and read-only Snap installations cannot be patched. An official VS Code `.tar.gz` extracted into a directory you own is an alternative. Do not run VS Code as root or broadly change system permissions to enable the wallpaper. Ocean Window leaves permissions unchanged and reports the installation path when access is denied.
-
-For an `EACCES` error creating `workbench.html.ocean-window.lock` in a writable system installation, see the [tested Linux directory-permission procedure](https://github.com/zeusu-sato/ocean-window/blob/main/docs/linux-permissions.md). It adds access for one user to the exact workbench directory, allowing an existing installation to be used.
-
-See the [publication status and tested platforms](https://github.com/zeusu-sato/ocean-window/blob/main/docs/publication.md).
-
-On macOS, both Intel and Apple Silicon use the universal VSIX in regular VS Code or Insiders. Install VS Code into Applications and reopen that copy before applying the wallpaper. If the application remains read-only or is managed by an administrator, use an installation writable by your account; no elevated command or security bypass is needed by Ocean Window. See the [Mac guide and native test results](https://github.com/zeusu-sato/ocean-window/blob/main/docs/macos.md).
+See the [Mac guide](https://github.com/zeusu-sato/ocean-window/blob/main/docs/macos.md) for Intel and Apple Silicon installation notes.

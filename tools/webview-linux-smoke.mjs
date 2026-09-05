@@ -6,42 +6,43 @@ import { createHash } from 'node:crypto';
 import net from 'node:net';
 import { chromium } from 'playwright';
 
-// Control only a supplied private macOS bundle. Test fixtures and extension
-// state use a short separate path because macOS IPC socket paths are limited.
 const args = {};
-for (let index = 2; index < process.argv.length; index += 2) {
-  const key = process.argv[index], value = process.argv[index + 1];
-  assert.ok(['--app-root','--executable','--vsix','--output'].includes(key) && value && !value.startsWith('--'), 'Unexpected argument: ' + key);
-  assert.ok(!Object.hasOwn(args,key), 'Duplicate argument: ' + key); args[key] = path.resolve(value);
-}
-for(const key of ['--app-root','--executable','--vsix','--output']) assert.ok(args[key], 'Required: ' + key);
-assert.equal(process.platform,'darwin','This smoke requires an actual macOS host');
-const appRoot=await fs.realpath(args['--app-root']), executable=await fs.realpath(args['--executable']);
-const vsix=await fs.realpath(args['--vsix']), output=args['--output'];
-assert.ok(appRoot.endsWith('/Contents/Resources/app'));
-assert.equal(path.dirname(executable),path.resolve(appRoot,'../../MacOS'),'Executable must belong to supplied bundle');
-assert.ok((await fs.stat(executable)).isFile());
-assert.ok(!appRoot.startsWith('/Applications/'),'Use a private downloaded application');
-let htmlPath;
-for(const kind of ['electron-browser','electron-sandbox']) for(const name of ['workbench.html','workbench.esm.html']) {
-  const candidate=path.join(appRoot,'out/vs/code',kind,'workbench',name);
-  if(await fs.stat(candidate).then(stat=>stat.isFile(),error=>{if(error.code==='ENOENT')return false;throw error;})) htmlPath ||=candidate;
-}
-assert.ok(htmlPath,'Expected native workbench HTML');
-const bridge=await fs.mkdtemp('/tmp/ow-webview-');
-const profile=path.join(bridge,'profile'), extensions=path.join(bridge,'extensions'), shared=path.join(bridge,'shared-data');
-const driverPath=path.join(bridge,'driver'), fixtures=path.join(bridge,'fixtures');
-await Promise.all([fs.mkdir(output,{recursive:true}),fs.mkdir(path.join(profile,'User'),{recursive:true}),...[extensions,shared,driverPath,fixtures].map(folder=>fs.mkdir(folder))]);
-await fs.writeFile(path.join(profile,'User/settings.json'),JSON.stringify({
-  'workbench.startupEditor':'none','window.dialogStyle':'custom','security.workspace.trust.enabled':false,
-  'update.mode':'none','telemetry.telemetryLevel':'off','workbench.colorTheme':'Abyss','extensions.autoUpdate':false,'extensions.autoCheckUpdates':false
-},null,2));
-await fs.writeFile(path.join(driverPath,'package.json'),JSON.stringify({name:'ocean-window-smoke-driver',publisher:'ocean-window-tests',version:'0.0.1',engines:{vscode:'^1.130.0'},activationEvents:['onStartupFinished'],main:'./driver.cjs',extensionKind:['ui']}));
-await fs.copyFile(new URL('./webview-smoke-driver.cjs', import.meta.url), path.join(driverPath, 'driver.cjs'));
+for (let index = 2; index < process.argv.length; index += 2) args[process.argv[index]] = process.argv[index + 1];
+assert.equal(process.platform, 'linux');
+assert.equal(process.getuid(), 1000, 'Permission-free operation must run as the unprivileged Linux test user');
+assert.ok(['oldest', 'insiders'].includes(args['--suite']));
+assert.ok(args['--vsix'] && args['--output']);
+const suite = args['--suite'];
+const base = '/tmp/ocean-window-linux-verification' + (suite === 'oldest' ? '/stable-1.130' : '');
+const executable = path.join(base, 'VSCode-linux-x64', suite === 'oldest' ? 'code' : 'code-insiders');
+const appRoot = path.join(base, 'VSCode-linux-x64/resources/app');
+const htmlPath = path.join(appRoot, 'out/vs/code/electron-browser/workbench/workbench.html');
+const vsix = path.resolve(args['--vsix']);
+const output = path.resolve(args['--output']);
+const bridge = await fs.mkdtemp('/tmp/ow-webview-');
+const profile = path.join(bridge, 'profile');
+const extensions = path.join(bridge, 'extensions');
+const shared = path.join(bridge, 'shared-data');
+const driver = path.join(bridge, 'driver');
+const fixtures = path.join(bridge, 'fixtures');
+await Promise.all([fs.mkdir(output, { recursive: true }), fs.mkdir(path.join(profile, 'User'), { recursive: true }), ...[extensions, shared, driver, fixtures].map(folder => fs.mkdir(folder))]);
+await fs.writeFile(path.join(profile, 'User/settings.json'), JSON.stringify({
+  'workbench.startupEditor': 'none', 'window.dialogStyle': 'custom',
+  'security.workspace.trust.enabled': false, 'update.mode': 'none',
+  'telemetry.telemetryLevel': 'off', 'workbench.colorTheme': 'Abyss',
+  'extensions.autoUpdate': false, 'extensions.autoCheckUpdates': false
+}, null, 2));
+await fs.writeFile(path.join(driver, 'package.json'), JSON.stringify({
+  name: 'ocean-window-smoke-driver', publisher: 'ocean-window-tests', version: '0.0.1',
+  engines: { vscode: '^1.130.0' }, activationEvents: ['onStartupFinished'], main: './driver.cjs', extensionKind: ['ui']
+}));
+await fs.copyFile(new URL('./webview-smoke-driver.cjs', import.meta.url), path.join(driver, 'driver.cjs'));
 const originalHtml = await fs.readFile(htmlPath);
 const originalDirectory = await fs.readdir(path.dirname(htmlPath));
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 assert.ok(!originalHtml.includes('OCEAN-WINDOW:START'), 'Private native application must start unpatched');
+assert.equal((await fs.stat(appRoot)).uid, 0);
+assert.equal((await fs.stat(htmlPath)).uid, 0);
 const appManifest = JSON.parse(await fs.readFile(path.join(appRoot, 'package.json'), 'utf8'));
 const product = JSON.parse(await fs.readFile(path.join(appRoot, 'product.json'), 'utf8'));
 const report = {
@@ -49,17 +50,21 @@ const report = {
   vscodeVersion: appManifest.version, vscodeCommit: product.commit,
   package: path.basename(vsix), sha256: hash(await fs.readFile(vsix)), originalWorkbenchSha256: hash(originalHtml),
   nativeAppOwnerUid: (await fs.stat(appRoot)).uid,
-  environment: 'Native macOS Electron desktop with isolated app, profile, workspace, installed VSIX and supported-API driver',
+  stateRoot: bridge,
+  environment: 'Native Linux Electron desktop with root-owned nonwritable app, unprivileged extension host, isolated profile and installed VSIX',
   cases: []
 };
 const children = new Set();
 let browser;
 let page;
 let log;
-let phase = 'install';
-let app;
+let phase = 'write-denial';
 let serial = 0;
 
+async function mustDenyWrite() {
+  await assert.rejects(fs.open(htmlPath, 'r+'), error => error.code === 'EACCES');
+  await assert.rejects(fs.writeFile(path.join(path.dirname(htmlPath), '.ow-webview-write-probe'), 'must be denied', { flag: 'wx' }), error => error.code === 'EACCES');
+}
 function start(command, commandArgs, options = {}) {
   const child = spawn(command, commandArgs, { ...options, detached: true });
   if (child.pid) children.add(child);
@@ -132,36 +137,46 @@ async function noScene() {
   }
 }
 async function screenshot(name) {
-  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-  await new Promise(resolve => setTimeout(resolve, 200));
+  await Promise.allSettled(page.frames().map(frame => Promise.race([
+    frame.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))),
+    new Promise(resolve => setTimeout(resolve, 300))
+  ])));
+  // Native webviews composite in another renderer process. DOM readiness may
+  // precede the corresponding outer-window screenshot by one compositor frame.
+  await page.waitForTimeout(200);
   await page.screenshot({ path: path.join(output, name + '.png') });
 }
-async function launchApplication() {
-  const isolation = [`--user-data-dir=${profile}`, `--extensions-dir=${extensions}`, `--shared-data-dir=${shared}`];
-  await fs.rm(path.join(bridge, "request.json"), { force: true });
-  phase = 'launch';
-  const debugPort = await port();
-  const appEnv = { ...process.env, OCEAN_SMOKE_BRIDGE: bridge };
-  delete appEnv.ELECTRON_RUN_AS_NODE;
-  log ||= await fs.open(path.join(output, 'application.log'), 'a');
-  app = start(executable, [...isolation, `--extensionDevelopmentPath=${driverPath}`, '--locale=en', '--skip-welcome', '--skip-release-notes', '--new-window', `--remote-debugging-port=${debugPort}`, fixtures], { env: appEnv, stdio: ['ignore', log.fd, log.fd] });
-  app.once('error', error => { report.launchError = String(error); });
-  for (let attempt = 0; attempt < 100 && !browser; attempt++) {
-    try { browser = await chromium.connectOverCDP(`http://127.0.0.1:${debugPort}`, { timeout: 1000 }); }
-    catch { await new Promise(resolve => setTimeout(resolve, 250)); }
+async function waitForImagePreview() {
+  const deadline = Date.now() + 20_000;
+  while (Date.now() < deadline) {
+    for (const frame of page.frames().filter(candidate => candidate !== page.mainFrame())) {
+      const loaded = await frame.evaluate(() => !document.querySelector('.ocean-window') && [...document.images].some(image => image.complete && image.naturalWidth > 0)).catch(() => false);
+      if (loaded) return;
+    }
+    await new Promise(resolve => setTimeout(resolve, 100));
   }
-  assert.ok(browser);
-  for (let attempt = 0; attempt < 100 && !page; attempt++) {
-    page = browser.contexts().flatMap(context => context.pages()).find(candidate => decodeURIComponent(candidate.url()).includes(appRoot) && candidate.url().includes('workbench.html'));
-    if (!page) await new Promise(resolve => setTimeout(resolve, 100));
-  }
-  assert.ok(page, 'Only the supplied private native macOS window may be controlled');
-  page.setDefaultTimeout(20_000);
-  await page.setViewportSize({ width: 1280, height: 900 });
-  await page.bringToFront();
+  throw new Error('The native image-preview editor did not decode its image');
 }
-
+async function disposedWebviewErrors() {
+  const errors = [];
+  async function scan(directory) {
+    for (const entry of await fs.readdir(directory, { withFileTypes: true }).catch(() => [])) {
+      const file = path.join(directory, entry.name);
+      if (entry.isDirectory()) await scan(file);
+      else if (entry.isFile() && entry.name.endsWith('.log')) {
+        const contents = await fs.readFile(file, 'utf8');
+        for (const line of contents.split(/\r?\n/)) if (/webview is disposed/i.test(line)) errors.push({ file: path.relative(profile, file), line });
+      }
+    }
+  }
+  await scan(path.join(profile, 'logs'));
+  const appLog = await fs.readFile(path.join(output, 'application.log'), 'utf8');
+  for (const line of appLog.split(/\r?\n/)) if (/webview is disposed/i.test(line)) errors.push({ file: 'application.log', line });
+  return errors;
+}
 async function verify() {
+  await mustDenyWrite();
+  report.cases.push('User 1000 cannot write the root-owned native workbench or create a file in its directory');
   phase = 'install';
   const isolation = [`--user-data-dir=${profile}`, `--extensions-dir=${extensions}`, `--shared-data-dir=${shared}`];
   const installed = await run(executable, [path.join(appRoot, 'out/cli.js'), ...isolation, '--install-extension', vsix, '--force'], { env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' } });
@@ -174,19 +189,36 @@ async function verify() {
   const code = path.join(fixtures, 'ocean-smoke.js');
   const markdown = path.join(fixtures, 'ocean-smoke.md');
   const picture = path.join(fixtures, 'ocean-smoke.png');
-  await fs.writeFile(code, '// Native macOS application; ordinary extension API\nconst oceanWindow = "Only empty editors show the sea";\n');
+  await fs.writeFile(code, '// Root-owned Linux application; ordinary extension API\nconst oceanWindow = "Only empty editors show the sea";\n');
   await fs.writeFile(markdown, '# Ocean Window\n\nMarkdown is readable with no extra Ocean tab.\n');
   await fs.copyFile(path.join(extensions, folder, 'icon.png'), picture);
-  await launchApplication();
+  phase = 'launch';
+  const debugPort = await port();
+  const appEnv = { ...process.env, OCEAN_SMOKE_BRIDGE: bridge };
+  delete appEnv.ELECTRON_RUN_AS_NODE;
+  log = await fs.open(path.join(output, 'application.log'), 'a');
+  const app = start(executable, [...isolation, `--extensionDevelopmentPath=${driver}`, '--locale=en', '--no-sandbox', '--ozone-platform=headless', '--disable-gpu', '--skip-welcome', '--skip-release-notes', '--new-window', `--remote-debugging-port=${debugPort}`], { env: appEnv, stdio: ['ignore', log.fd, log.fd] });
+  app.once('error', error => { report.launchError = String(error); });
+  for (let attempt = 0; attempt < 100 && !browser; attempt++) {
+    try { browser = await chromium.connectOverCDP(`http://127.0.0.1:${debugPort}`, { timeout: 1000 }); }
+    catch { await new Promise(resolve => setTimeout(resolve, 250)); }
+  }
+  assert.ok(browser);
+  for (let attempt = 0; attempt < 100 && !page; attempt++) {
+    page = browser.contexts().flatMap(context => context.pages()).find(candidate => decodeURIComponent(candidate.url()).includes(appRoot) && candidate.url().includes('workbench.html'));
+    if (!page) await new Promise(resolve => setTimeout(resolve, 100));
+  }
+  assert.ok(page, 'Only the private native Linux window may be controlled');
+  page.setDefaultTimeout(20_000);
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.bringToFront();
   phase = 'automatic-scene';
   const initialState = await tabs(1);
-  assert.equal(initialState.platform, 'darwin');
-  assert.equal(initialState.architecture,process.arch);
-  assert.equal(initialState.uid,process.getuid());
-  assert.equal(await fs.realpath(initialState.appRoot),appRoot);
+  assert.equal(initialState.platform, 'linux');
+  assert.equal(initialState.uid, 1000);
+  assert.equal(initialState.appRoot, appRoot);
   assert.equal(initialState.oceanActive, true);
   report.nativeExtensionHost = initialState;
-  report.initialRendererTimeOrigin=await page.evaluate(()=>performance.timeOrigin);
   let frame = await scene();
   report.photo = await frame.evaluate(() => {
     const surface = document.querySelector('.ocean-window[data-ready="true"]');
@@ -195,13 +227,14 @@ async function verify() {
   assert.ok(report.photo.images.some(image => /^https:\/\/(?:thumb|upload)\.wikimedia\.org\//.test(image.src)));
   assert.deepEqual(await fs.readFile(htmlPath), originalHtml);
   await screenshot('automatic-sea');
-  report.cases.push('Installing the VSIX in the native macOS host automatically displays a real online sea in an empty editor, without permission setup, consent dialog or reload');
+  report.cases.push('Installing the VSIX in the native Linux host automatically displays a real online sea in an empty editor, without permission setup, consent dialog or reload');
   phase = 'file-lifecycle';
   for (const [file, kind, name] of [[code, 'text', 'code'], [markdown, 'text', 'markdown'], [picture, 'custom', 'image']]) {
     await request('open', { file, kind });
     const state = await tabs(0);
     assert.ok(state.groups.some(group => group.tabs.some(tab => tab.uri === file)), `Expected native ${name} editor tab`);
     await noScene();
+    if (kind === 'custom') await waitForImagePreview();
     await screenshot(name);
     report.cases.push(`Opening ${name} closes the Ocean panel completely and leaves no extra Ocean tab`);
   }
@@ -260,35 +293,6 @@ async function verify() {
   await tabs(1);
   await scene();
   report.cases.push('Opening and then closing another file resets manual dismissal and returns the sea');
-  phase = 'cold-restart';
-  assert.equal(await page.evaluate(()=>performance.timeOrigin),report.initialRendererTimeOrigin,'File activity and settings must not reload the window');
-  frame=await scene();
-  await frame.locator('.editor-group-container').hover();
-  if (!await frame.evaluate(() => globalThis.__oceanWindow.status()[0]?.paused)) {
-    await frame.locator('.ow-controls button').nth(1).click();
-    await frame.waitForFunction(() => globalThis.__oceanWindow.status()[0]?.paused === true);
-  }
-  const saved=await frame.evaluate(()=>globalThis.__oceanWindow.exportState());
-  assert.equal(saved.paused,true); assert.ok(saved.currentId && saved.bagIds[0]);
-  await new Promise(resolve=>setTimeout(resolve,2000));
-  const previousApp=app;
-  const stopped=new Promise(resolve=>{if(previousApp.exitCode!==null || previousApp.signalCode!==null)resolve();else previousApp.once('exit',resolve);});
-  await browser.close(); browser=undefined; page=undefined;
-  stop(previousApp);
-  await Promise.race([stopped,new Promise(resolve=>setTimeout(resolve,3000))]);
-  if(previousApp.exitCode===null && previousApp.signalCode===null) stop(previousApp,'SIGKILL');
-  await Promise.race([stopped,new Promise((_,reject)=>setTimeout(()=>reject(Error('Previous app did not exit')),3000))]);
-  children.delete(previousApp);
-  await launchApplication(); assert.notEqual(app.pid,previousApp.pid);
-  report.coldRestart={precedingPid:previousApp.pid,relaunchedPid:app.pid,sameApplicationProfileAndWorkspace:true};
-  await tabs(1); frame=await scene();
-  const restored=await frame.evaluate(()=>globalThis.__oceanWindow.exportState());
-  assert.equal(restored.currentId,saved.currentId); assert.equal(restored.paused,true); assert.equal(restored.bagIds[0],saved.bagIds[0]);
-  await frame.locator('.editor-group-container').hover();
-  await frame.getByRole('button', { name: '\u6b21\u306e\u6d77\u3078', exact: true }).click();
-  await frame.waitForFunction(id=>document.querySelector('.ocean-window[data-ready="true"]')?.dataset.photo===id,saved.bagIds[0]);
-  await screenshot('cold-restart');
-  report.cases.push('A new native process restores current photo, pause state and next shuffle choice in the same workspace');
   phase = 'disable';
   await request('command', { command: 'oceanWindow.disable' });
   await tabs(0);
@@ -302,10 +306,14 @@ async function verify() {
   await scene();
   report.cases.push('Enable restores the sea immediately through the standard extension API');
   phase = 'final-native-integrity';
+  await mustDenyWrite();
   assert.deepEqual(await fs.readFile(htmlPath), originalHtml);
   assert.deepEqual(await fs.readdir(path.dirname(htmlPath)), originalDirectory);
   report.finalWorkbenchSha256 = hash(await fs.readFile(htmlPath));
-  report.cases.push('Native application HTML and workbench directory remain exactly unchanged after every operation');
+  report.cases.push('Native application HTML and workbench directory remain exactly unchanged and nonwritable after every operation');
+  report.disposedWebviewErrors = await disposedWebviewErrors();
+  assert.deepEqual(report.disposedWebviewErrors, [], 'Native application and extension-host logs must contain no disposed-webview errors');
+  report.cases.push('Native application and extension-host logs contain no disposed-webview errors');
   report.success = true;
 }
 let timer;
@@ -330,8 +338,6 @@ try {
   for (const child of children) stop(child, 'SIGKILL');
   if (log) await log.close();
   report.finalWorkbenchSha256 = hash(await fs.readFile(htmlPath));
-  report.nativeFilesUnchanged=report.finalWorkbenchSha256===report.originalWorkbenchSha256 && JSON.stringify(await fs.readdir(path.dirname(htmlPath)))===JSON.stringify(originalDirectory);
-  if(!report.nativeFilesUnchanged){report.success=false;failure ||= Error('Native workbench changed');}
   await fs.writeFile(path.join(output, 'verification.json'), JSON.stringify(report, null, 2) + '\n');
 }
 console.log(JSON.stringify(report, null, 2));

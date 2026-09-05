@@ -18,6 +18,8 @@
   let disposed = false;
   let refreshing = false;
   let lastRefresh = 0;
+  let initialState = globalThis.__oceanWindowInitialState;
+  const notifyState = () => globalThis.dispatchEvent?.(new Event('ocean-window-state-change'));
   function photoKey(photo) {
     try { return decodeURIComponent(new URL(photo.sourceUrl).pathname).replaceAll('_', ' '); }
     catch { return photo.id; }
@@ -95,6 +97,26 @@
     surface.append(...layers, footer);
     const state = { group, surface, layers, footer, place, country, credit, bag: [], current: null,
       layer: 0, paused: false, busy: false, timer: null, due: 0, remaining: interval, generation: 0, seen: new Set() };
+    // This optional snapshot is used by the standard Webview host. Native empty
+    // groups keep their original behavior when no snapshot has been supplied.
+    if (initialState?.version === 1) {
+      const restored = globalThis.__oceanSource?.normalizePhotos(initialState.photos) || [];
+      const byId = new Map([...photos, ...restored].map(photo => [photo.id, photo]));
+      const ids = Array.isArray(initialState.bagIds) ? [...new Set(initialState.bagIds.slice(0, 200))] : [];
+      state.bag = ids.map(id => byId.get(id)).filter(Boolean);
+      state.seen = new Set(Array.isArray(initialState.seenKeys)
+        ? initialState.seenKeys.slice(0, 400).filter(key => typeof key === 'string' && key.length <= 2048) : []);
+      state.paused = initialState.paused === true;
+      state.remaining = Number.isFinite(initialState.remaining) ? Math.min(interval, Math.max(0, initialState.remaining)) : interval;
+      state.resumePhoto = byId.get(initialState.currentId) || null;
+      pause.setAttribute('aria-pressed', String(state.paused));
+      if (state.paused) {
+        pause.title = '自動切り替えを再開';
+        pause.setAttribute('aria-label', pause.title);
+        pause.querySelector('path').setAttribute('d', 'M5 3v14l11-7z');
+      }
+      initialState = null;
+    }
     groups.set(group, state);
     group.append(surface);
     next.addEventListener('click', event => { event.stopPropagation(); change(state); });
@@ -107,6 +129,7 @@
       pause.setAttribute('aria-label', label);
       pause.querySelector('path').setAttribute('d', state.paused ? 'M5 3v14l11-7z' : 'M7 4v12 M13 4v12');
       sync(state);
+      notifyState();
     });
     info.addEventListener('click', event => {
       event.stopPropagation();
@@ -179,7 +202,9 @@
     if (state.busy || !visible(state)) return;
     refreshPhotos();
     stopTimer(state);
-    const photo = takePhoto(state);
+    const resuming = Boolean(state.resumePhoto);
+    const photo = state.resumePhoto || takePhoto(state);
+    state.resumePhoto = null;
     if (!photo) {
       // Retry a temporary outage later; never remove the previously displayed picture.
       if (!state.paused) {
@@ -190,6 +215,7 @@
       return;
     }
     state.busy = true;
+    state.pendingPhoto = photo;
     const generation = ++state.generation;
     const image = new Image();
     const source = photo.imageUrl;
@@ -217,15 +243,17 @@
         link('写真', photo.sourceUrl), document.createTextNode(` · ${photo.author || ''} · `),
         link(photo.license || '', photo.licenseUrl)
       );
-      state.remaining = interval;
+      if (!resuming) state.remaining = interval;
     } catch {
       failed.add(photo.id);
       failedUntil = Date.now() + 15 * 60_000;
     } finally {
       state.busy = false;
+      state.pendingPhoto = null;
       if (!disposed && state.group.isConnected) {
         if (failed.has(photo.id) && failed.size < photos.length) change(state);
         else sync(state);
+        notifyState();
       }
     }
   }
@@ -252,7 +280,7 @@
     observer.observe(editor, { childList: true, subtree: true });
   }
 
-  const visibilityChanged = () => groups.forEach(sync);
+  const visibilityChanged = () => { groups.forEach(sync); notifyState(); };
   document.addEventListener('visibilitychange', visibilityChanged);
   const api = {
     dispose() {
@@ -266,7 +294,19 @@
     },
     // Diagnostics contain only wallpaper state; never workspace or editor data.
     status() { return [...groups.values()].map(s => ({ photo: s.current?.id, visible: visible(s), paused: s.paused,
-      timerActive: s.timer !== null, remaining: s.remaining })); }
+      timerActive: s.timer !== null, remaining: s.remaining })); },
+    exportState() {
+      const state = groups.values().next().value;
+      if (!state) return null;
+      const current = state.current || state.pendingPhoto || state.resumePhoto;
+      const saved = [...new Map([current, ...state.bag, ...photos].filter(Boolean)
+        .map(photo => [photo.id, photo])).values()].slice(0, 200);
+      const ids = new Set(saved.map(photo => photo.id));
+      return { version: 1, photos: saved.map(photo => ({ ...photo })), currentId: current?.id || null,
+        bagIds: state.bag.map(photo => photo.id).filter(id => ids.has(id)).slice(0, 200),
+        seenKeys: [...state.seen].slice(-400), paused: state.paused,
+        remaining: state.timer !== null ? Math.max(0, state.due - Date.now()) : state.remaining };
+    }
   };
   globalThis.__oceanWindow = api;
   start();

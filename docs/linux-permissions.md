@@ -1,31 +1,30 @@
-# Linux: permission denied when enabling
+# Linux: upgrading from the old permission-dependent wallpaper
 
-An `EACCES` error creating `workbench.html.ocean-window.lock` under `/usr/share/code-insiders/resources/app` means Ocean Window cannot create files in that system installation's workbench directory. Installing the extension and applying its native wallpaper have separate permission requirements.
+**Ocean Window 0.3 does not need write access to VS Code application files.** Its standard Webview scene works without a wallpaper-specific `sudo` command, ACL change, or replacement installation.
 
-A user-owned official VS Code `.tar.gz` installation is one option. To keep an existing system installation on your own machine, an administrator can instead give your user access to the exact workbench directory reported in the error. This grants the user permission to create and replace entries in that directory, which the native customization requires.
+An error mentioning `workbench.html.ocean-window.lock` under `/usr/share/code-insiders/resources/app` comes from the 0.2.x native wallpaper or an explicit attempt to restore an existing old patch. Update the extension to 0.3 or later, leave the editor empty, and use **Ocean Window: Show Ocean Window** if it was turned off.
 
-For this specific Insiders path, run the following in your ordinary Linux user's terminal:
+## Failed old enable with no patch
 
-```bash
-sudo setfacl -m "u:$(id -u):rwx" -- \
-  /usr/share/code-insiders/resources/app/out/vs/code/electron-browser/workbench
-```
+Version 0.2.x could save a `pending-enable` recovery receipt before failing to create its application lock. If this happened, the application is still clean. Legacy cleanup checks the application first and retires that receipt without attempting another native write or requiring a reload. The new scene works independently of the receipt.
 
-The [setfacl command](https://man7.org/linux/man-pages/man1/setfacl.1.html) adds an access entry for the current user to that one directory. It does not apply recursively. The directory owner remains unchanged. If the machine has custom ACLs, inspect them with `getfacl` first: adding an ACL can recalculate the effective group/named-user mask.
+## An old native patch was successfully applied
 
-If `setfacl` is missing, Ubuntu/Debian users can install the `acl` package with `sudo apt install acl`, then repeat the command.
+Use **Ocean Window: Restore Legacy Native Wallpaper**, then reload each affected window once. Restoration removes Ocean Window's marked block and owned payload while preserving unrelated edits and the original backup. It requires the same application access used to apply the old patch; the extension does not change permissions automatically.
 
-Run **Ocean Window: Enable / Apply Ocean Wallpaper** again, then reload when your work is ready. Use the actual directory from your error if its path differs; regular VS Code normally uses a different installation directory.
+A failed legacy restoration does not prevent the new scene from working. Include the exact error and application path in a [support report](https://github.com/zeusu-sato/ocean-window/issues) if cleanup is unavailable.
 
-The installer creates its lock, backup, payload stage and temporary HTML in the workbench directory. It then atomically replaces HTML, so granting write access only to the old HTML file would not be sufficient. Replacement HTML is owned by the applying user; Restore restores its contents, not package-manager ownership metadata.
+## If you previously added the documented ACL
 
-This procedure was verified with the published 0.2.1 installer under actual Linux: a root-owned, mode-0755 workbench directory reproduced the same lock `EACCES` for an ordinary user. Adding only the directory ACL allowed enable, reapply and exact HTML restoration while the directory and an unrelated file remained root-owned. An existing Ocean Window payload created by a different account needs separate inspection.
+This section only applies if you already added the named-user ACL from the old guide. It is not an installation step for 0.3.
 
-The ACL does not make a read-only filesystem writable, so it cannot fix a read-only Snap installation. A VS Code package update that recreates the directory may also remove the added ACL.
-
-To remove the added ACL, first run **Ocean Window: Restore Original Editor** and reload, then use:
+First restore any old native patch and reload the affected windows. Then remove only the ACL entry you previously added. For the exact Insiders directory from that procedure:
 
 ```bash
 sudo setfacl -x "u:$(id -u)" -- \
   /usr/share/code-insiders/resources/app/out/vs/code/electron-browser/workbench
 ```
+
+Use your original target if it differed. Do not remove an ACL established for some other purpose. The old procedure changed only that directory's ACL; native HTML replacement also changed the HTML file owner to the applying user, and restoration restores contents rather than package-manager ownership metadata.
+
+The earlier directory-ACL workaround was tested with the 0.2.1 native installer. That historical result is not a requirement or setup recommendation for the standard Webview scene.

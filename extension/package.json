@@ -2,7 +2,7 @@
   "name": "ocean-window",
   "displayName": "Ocean Window",
   "description": "%extension.description%",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "publisher": "zeusu-sato",
   "repository": { "type": "git", "url": "https://github.com/zeusu-sato/ocean-window.git" },
   "homepage": "https://github.com/zeusu-sato/ocean-window#readme",
@@ -23,6 +23,7 @@
     "commands": [
       { "command": "oceanWindow.enable", "title": "%command.enable%", "category": "Ocean Window" },
       { "command": "oceanWindow.disable", "title": "%command.disable%", "category": "Ocean Window" },
+      { "command": "oceanWindow.restoreLegacy", "title": "%command.restoreLegacy%", "category": "Ocean Window" },
       { "command": "oceanWindow.status", "title": "%command.status%", "category": "Ocean Window" },
       { "command": "oceanWindow.openSettings", "title": "%command.settings%", "category": "Ocean Window" },
       { "command": "oceanWindow.openGuide", "title": "%command.guide%", "category": "Ocean Window" }
@@ -30,11 +31,11 @@
     "configuration": {
       "title": "Ocean Window",
       "properties": {
-        "oceanWindow.intervalMinutes": { "type": "number", "default": 10, "minimum": 1, "maximum": 1440, "scope": "application", "description": "%setting.interval%" },
-        "oceanWindow.brightness": { "type": "number", "default": 0.78, "minimum": 0, "maximum": 1, "scope": "application", "description": "%setting.brightness%" },
-        "oceanWindow.showCaption": { "type": "boolean", "default": true, "scope": "application", "description": "%setting.caption%" },
-        "oceanWindow.refreshHours": { "type": "number", "default": 24, "minimum": 1, "maximum": 168, "scope": "application", "description": "%setting.refresh%" },
-        "oceanWindow.targetPhotoCount": { "type": "integer", "default": 60, "minimum": 1, "maximum": 200, "scope": "application", "description": "%setting.count%" }
+        "oceanWindow.intervalMinutes": { "type": "number", "default": 10, "minimum": 1, "maximum": 1440, "scope": "window", "description": "%setting.interval%" },
+        "oceanWindow.brightness": { "type": "number", "default": 0.78, "minimum": 0, "maximum": 1, "scope": "window", "description": "%setting.brightness%" },
+        "oceanWindow.showCaption": { "type": "boolean", "default": true, "scope": "window", "description": "%setting.caption%" },
+        "oceanWindow.refreshHours": { "type": "number", "default": 24, "minimum": 1, "maximum": 168, "scope": "window", "description": "%setting.refresh%" },
+        "oceanWindow.targetPhotoCount": { "type": "integer", "default": 60, "minimum": 1, "maximum": 200, "scope": "window", "description": "%setting.count%" }
       }
     }
   }

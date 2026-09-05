@@ -1,10 +1,10 @@
-name: macOS native release verification
+name: macOS native webview verification
 
 on:
   workflow_dispatch:
     inputs:
       release_version:
-        description: Published extension version (blank uses extension/package.json)
+        description: Published version to verify (blank builds this source as a candidate)
         required: false
         type: string
   release:
@@ -15,6 +15,7 @@ on:
       - .github/workflows/macos-native.yml
       - tools/prepare-macos-smoke.mjs
       - tools/native-desktop-smoke.mjs
+      - tools/webview-smoke-driver.cjs
 
 permissions:
   contents: read
@@ -23,7 +24,7 @@ jobs:
   native:
     name: ${{ matrix.runner }} / ${{ matrix.channel }}
     runs-on: ${{ matrix.runner }}
-    timeout-minutes: 15
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -38,15 +39,23 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
-      - name: Installer and extension regression tests on macOS
-        run: node --test tools/install.test.mjs tools/source.test.mjs extension/test/extension.test.cjs extension/test/uninstall.test.cjs
-      - name: Download official VS Code and published VSIX with SHA-256 verification
+      - name: Source and webview regression tests on macOS
+        run: node --test tools/source.test.mjs extension/test/webview.test.cjs extension/test/extension.test.cjs
+      - name: Build candidate from the checked-out source
+        if: github.event_name != 'release' && inputs.release_version == ''
+        id: candidate
+        run: |
+          npx playwright install chrome
+          npm run package:extension
+          node --input-type=module -e 'import fs from "node:fs"; import path from "node:path"; const manifest = JSON.parse(fs.readFileSync("extension/package.json", "utf8")); fs.appendFileSync(process.env.GITHUB_OUTPUT, "vsix=" + path.resolve("releases", "ocean-window-" + manifest.version + ".vsix") + "\n");'
+      - name: Download official VS Code and select the verified candidate or release VSIX
         id: prepare
         env:
           OCEAN_SMOKE_CHANNEL: ${{ matrix.channel }}
           OCEAN_SMOKE_RELEASE: ${{ inputs.release_version || github.event.release.tag_name }}
+          OCEAN_SMOKE_VSIX: ${{ steps.candidate.outputs.vsix }}
         run: node tools/prepare-macos-smoke.mjs
-      - name: Install, display, and restore the published extension in native VS Code
+      - name: Verify automatic scenery, file lifecycle, restart, and unchanged native files
         env:
           SMOKE_APP_ROOT: ${{ steps.prepare.outputs.app_root }}
           SMOKE_EXECUTABLE: ${{ steps.prepare.outputs.executable }}

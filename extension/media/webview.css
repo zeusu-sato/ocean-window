@@ -1,0 +1,21 @@
+html, body, .monaco-workbench, .part.editor, .part.editor > .content, .editor-group-container {
+  box-sizing: border-box;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+body { background: #061c29; }
+.ocean-loading {
+  position: absolute;
+  inset: 50% 20px auto;
+  margin: 0;
+  color: #c1d8e0;
+  font: 12px/1.7 var(--vscode-font-family, sans-serif);
+  text-align: center;
+}
+.editor-group-container:has(> .ocean-window[data-ready="true"]) > .ocean-loading { display: none; }

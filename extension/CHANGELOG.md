@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.0 — Standard editor scene
+
+- Display photographs through VS Code's standard Webview API, with no application-file changes, administrator access, or native integrity warning for new installations.
+- Automatically show a temporary Ocean Window tab in an empty editor group and close it when a file or another editor opens.
+- Remember the on/off choice per workspace. Closing the scene tab keeps it dismissed until a real editor is opened and closed, or Show Ocean Window is run.
+- Apply photograph settings without reloading VS Code.
+- Keep explicit legacy restoration for existing 0.2.x native patches. Failed first-enable receipts on clean, read-only Linux installations can be retired without native writes.
+- Retain one universal package for Windows, Linux, Intel Macs, and Apple Silicon Macs, in regular VS Code and Insiders 1.130 or later.
+
 ## 0.2.1 — Universal preview
 
 - Remove the Windows x64 package restriction so Linux desktop clients can install the extension.

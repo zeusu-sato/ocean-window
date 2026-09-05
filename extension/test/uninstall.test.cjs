@@ -30,11 +30,16 @@ async function fixture(t) {
 test('latest unactivated version restores from stable receipt using its own bundled installer', async t => {
   const f = await fixture(t);
   const calls = [];
-  const result = await runUninstall(f.extensionRoot, async () => ({ runInstall: async options => calls.push(options) }));
+  const result = await runUninstall(f.extensionRoot, async () => ({ runInstall: async options => {
+    calls.push(options);
+    return { changed: true };
+  } }));
   assert.equal(result.restored, 1);
   assert.equal(calls[0].sourceRoot, path.join(f.extensionRoot, 'runtime'));
   assert.equal(calls[0].appRoot, f.appRoot);
   assert.equal(calls[0].uninstall, true);
+  assert.equal(calls[0].dryRun, true);
+  assert.equal(calls[1].dryRun, undefined);
   assert.equal(JSON.parse(await fs.readFile(f.receiptPath, 'utf8')).installs[0].state, 'disabled');
   assert.equal(await fs.stat(`${f.receiptPath}.lock`).catch(() => null), null);
 });
@@ -59,8 +64,8 @@ test('many past Insiders builds do not prevent restoration of the current versio
   for (let index = 0; index < 110; index++) f.receipt.installs.unshift({ ...f.receipt.installs.at(-1), appRoot: path.join(f.appRoot, `removed-${index}`) });
   await fs.writeFile(f.receiptPath, JSON.stringify(f.receipt));
   let calls = 0;
-  const result = await runUninstall(f.extensionRoot, async () => ({ runInstall: async () => { calls++; } }));
-  assert.equal(calls, 1);
+  const result = await runUninstall(f.extensionRoot, async () => ({ runInstall: async () => { calls++; return { changed: true }; } }));
+  assert.equal(calls, 2);
   assert.equal(result.restored, 1);
   assert.equal(result.skipped, 110);
 });
@@ -73,8 +78,33 @@ test('an incomplete old install does not block restoration of a healthy current 
   await fs.writeFile(f.receiptPath, JSON.stringify(f.receipt));
   await assert.rejects(runUninstall(f.extensionRoot, async () => ({ runInstall: async ({ appRoot }) => {
     if (appRoot === obsolete) throw new Error('old workbench unavailable');
+    return { changed: true };
   } })), error => error.report.restored === 1 && error.report.errors.length === 1);
   const after = JSON.parse(await fs.readFile(f.receiptPath, 'utf8'));
   assert.equal(after.installs[0].state, 'enabled');
   assert.equal(after.installs[1].state, 'disabled');
+});
+
+test('a clean pending-enable receipt is retired without a native write or lock', async t => {
+  const f = await fixture(t);
+  f.receipt.installs[0].state = 'pending-enable';
+  await fs.writeFile(f.receiptPath, JSON.stringify(f.receipt));
+  const calls = [];
+  const result = await runUninstall(f.extensionRoot, async () => ({ runInstall: async options => {
+    calls.push(options);
+    assert.equal(options.dryRun, true, 'clean root-owned app must remain read-only');
+    return { changed: false };
+  } }));
+  assert.equal(result.restored, 0);
+  assert.equal(result.alreadyClean, 1);
+  assert.equal(calls.length, 1);
+  assert.equal(JSON.parse(await fs.readFile(f.receiptPath, 'utf8')).installs[0].state, 'disabled');
+});
+
+test('all receipt entries are validated before any application is inspected or changed', async t => {
+  const f = await fixture(t);
+  f.receipt.installs.push({ ...f.receipt.installs[0], appRoot: '../untrusted' });
+  await fs.writeFile(f.receiptPath, JSON.stringify(f.receipt));
+  await assert.rejects(runUninstall(f.extensionRoot, async () => { throw new Error('must not load installer'); }), /Invalid Ocean Window install receipt entry/);
+  assert.equal(JSON.parse(await fs.readFile(f.receiptPath, 'utf8')).installs[0].state, 'enabled');
 });

@@ -19,6 +19,11 @@ if (!/^[a-z0-9][a-z0-9-]*$/i.test(publisher)) throw new Error('Publisher ID must
 
 const copies = new Map([
   ['extension/src/extension.cjs', 'out/extension.cjs'],
+  ['extension/src/webview.cjs', 'out/webview.cjs'],
+  ['extension/src/migration.cjs', 'out/migration.cjs'],
+  ['extension/src/legacy.cjs', 'out/legacy.cjs'],
+  ['extension/media/webview-bootstrap.js', 'media/webview-bootstrap.js'],
+  ['extension/media/webview.css', 'media/webview.css'],
   ['extension/src/uninstall.cjs', 'out/uninstall.cjs'],
   ['extension/package.nls.json', 'package.nls.json'],
   ['extension/package.nls.ja.json', 'package.nls.ja.json'],

@@ -103,6 +103,27 @@
 
   function getCached(config = {}) { return (readCache()?.photos || []).slice(0, options(config).target); }
 
+  // Webviews can be recreated with a different origin. Transfer only normalized
+  // photo metadata; image bytes continue to use Chromium's ordinary HTTP cache.
+  function exportCache() {
+    const cached = readCache();
+    return cached ? { version: 1, fetchedAt: cached.fetchedAt, requestedCount: cached.requestedCount,
+      photos: cached.photos.map(photo => ({ ...photo })) } : null;
+  }
+
+  function importCache(raw) {
+    if (raw?.version !== 1 || !Number.isFinite(raw.fetchedAt) || raw.fetchedAt < 0 ||
+        raw.fetchedAt > Date.now() || !Array.isArray(raw.photos)) return false;
+    const photos = unique(raw.photos.slice(0, LIMIT));
+    if (!photos.length) return false;
+    const previous = readCache();
+    if (previous && previous.fetchedAt > raw.fetchedAt) return false;
+    memory = { fetchedAt: raw.fetchedAt, photos,
+      requestedCount: Number.isInteger(raw.requestedCount) ? Math.min(LIMIT, Math.max(1, raw.requestedCount)) : photos.length };
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ version: 1, ...memory })); } catch { /* Memory remains available. */ }
+    return true;
+  }
+
   function metadataPhoto(page, place) {
     const info = page.imageinfo?.[0];
     if (!info || info.mime !== 'image/jpeg' || Math.min(info.width, info.height) < 900 ||
@@ -166,6 +187,7 @@
     memory = { fetchedAt: Date.now(), requestedCount: target, photos };
     retryAt = 0;
     try { localStorage.setItem(CACHE_KEY, JSON.stringify({ version: 1, ...memory })); } catch { /* Memory cache remains available. */ }
+    globalThis.dispatchEvent?.(new Event('ocean-window-catalog-change'));
     return photos.slice(0, target);
   }
 
@@ -181,5 +203,6 @@
     return pending.then(photos => photos.slice(0, target));
   }
 
-  globalThis.__oceanSource = Object.freeze({ getCached, load });
+  globalThis.__oceanSource = Object.freeze({ getCached, load, exportCache, importCache,
+    normalizePhotos: items => Array.isArray(items) ? unique(items.slice(0, LIMIT)) : [] });
 })();
