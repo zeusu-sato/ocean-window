@@ -3,11 +3,11 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { runInstall } from './install.mjs';
+import { resolveAppRoot, runInstall } from './install.mjs';
 
 const originalHtml = '<!doctype html>\r\n<html><head><meta http-equiv="Content-Security-Policy" content="default-src \'none\'; script-src \'self\'; style-src \'self\'; img-src \'self\' https:; connect-src \'self\' https:;"></head><body></body>\r\n<script src="./workbench.js" type="module"></script>\r\n</html>\r\n';
 
-async function fixture(t) {
+async function fixture(t, options = {}) {
   const temporaryParent = await fs.realpath(os.tmpdir());
   const root = await fs.mkdtemp(path.join(temporaryParent, 'ocean-window-test-'));
   t.after(async () => {
@@ -17,7 +17,7 @@ async function fixture(t) {
     await fs.rm(resolved, { recursive: true, force: false });
   });
   const sourceRoot = path.join(root, 'source');
-  const appRoot = path.join(root, 'app');
+  const appRoot = path.join(root, ...(options.appRootParts || ['app']));
   const workbenchDir = path.join(appRoot, 'out', 'vs', 'code', 'electron-browser', 'workbench');
   const html = path.join(workbenchDir, 'workbench.html');
   await fs.mkdir(workbenchDir, { recursive: true });
@@ -29,8 +29,37 @@ async function fixture(t) {
   await fs.writeFile(path.join(sourceRoot, 'src', 'wikimedia-source.js'), 'globalThis.__oceanSource = { fixture: true };');
   await fs.writeFile(path.join(sourceRoot, 'src', 'ocean-window.css'), '.editor-group-container.empty { color: inherit; }');
   await fs.writeFile(path.join(sourceRoot, 'assets', 'photos.json'), JSON.stringify([{ id: 'sea', label: 'Sea', country: 'Fixture', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/ab/Sea.jpg', sourceUrl: 'https://example.com/photo', author: 'Fixture', license: 'CC0', licenseUrl: 'https://example.com/license', position: 'center' }]));
-  return { sourceRoot, appRoot, html, workbenchDir };
+  return { root, sourceRoot, appRoot, html, workbenchDir };
 }
+
+test('standalone discovery resolves a Linux archive launcher without executing it', async t => {
+  const f = await fixture(t, { appRootParts: ['code-insiders', 'resources', 'app'] });
+  const bin = path.join(f.root, 'code-insiders', 'bin');
+  await fs.mkdir(bin);
+  await fs.writeFile(path.join(bin, 'code-insiders'), '#!/bin/sh\nexit 97\n');
+  const root = await resolveAppRoot(undefined, { platform: 'linux', environment: { PATH: bin } });
+  assert.equal(root, await fs.realpath(f.appRoot));
+});
+
+test('standalone discovery follows the Linux command symlink into its application', { skip: process.platform === 'win32' }, async t => {
+  const f = await fixture(t, { appRootParts: ['code-insiders', 'resources', 'app'] });
+  const bin = path.join(f.root, 'code-insiders', 'bin');
+  const commands = path.join(f.root, 'commands');
+  await fs.mkdir(bin);
+  await fs.mkdir(commands);
+  const launcher = path.join(bin, 'code-insiders');
+  await fs.writeFile(launcher, '#!/bin/sh\nexit 97\n');
+  await fs.symlink(launcher, path.join(commands, 'code-insiders'));
+  assert.equal(await resolveAppRoot(undefined, { platform: 'linux', environment: { PATH: commands } }), await fs.realpath(f.appRoot));
+});
+
+test('standalone discovery handles a macOS application bundle path containing spaces', async t => {
+  const f = await fixture(t, { appRootParts: ['Visual Studio Code - Insiders.app', 'Contents', 'Resources', 'app'] });
+  const bin = path.join(f.appRoot, 'bin');
+  await fs.mkdir(bin);
+  await fs.writeFile(path.join(bin, 'code-insiders'), '#!/bin/sh\nexit 97\n');
+  assert.equal(await resolveAppRoot(undefined, { platform: 'darwin', environment: { PATH: bin } }), await fs.realpath(f.appRoot));
+});
 
 test('dry run is read-only; install preserves CSP and script order; uninstall restores exact bytes', async t => {
   const f = await fixture(t);
@@ -171,4 +200,47 @@ test('a live native operation lock blocks competing mutations but never read-onl
   await fs.unlink(lock);
   await runInstall({ ...f, skipDist: true });
   assert.equal(await fs.stat(lock).catch(() => null), null);
+});
+
+for (const code of ['EACCES', 'EROFS']) {
+  test(`${code} on the native installation explains writable-install requirements without changing files`, async t => {
+    const f = await fixture(t);
+    const lock = `${f.html}.ocean-window.lock`;
+    const actualOpen = fs.open;
+    fs.open = async (file, ...args) => {
+      if (file === lock) throw Object.assign(new Error('Injected native access failure'), { code, path: file });
+      return actualOpen(file, ...args);
+    };
+    try {
+      await assert.rejects(runInstall({ ...f, skipDist: true }), error => {
+        assert.equal(error.code, code);
+        assert.equal(error.oceanWindowNativeAccessError, true);
+        assert.match(error.message, /user-writable installation/);
+        assert.match(error.message, /read-only Snap/);
+        assert.equal(error.cause.message, 'Injected native access failure');
+        return true;
+      });
+      assert.equal((await runInstall({ ...f, dryRun: true, skipDist: true })).dryRun, true);
+    } finally { fs.open = actualOpen; }
+    assert.equal(await fs.readFile(f.html, 'utf8'), originalHtml);
+    assert.deepEqual(await fs.readdir(f.workbenchDir), ['workbench.html']);
+  });
+}
+
+test('source permission errors are not mislabeled as native application access failures', async t => {
+  const f = await fixture(t);
+  const config = path.join(f.sourceRoot, 'config.json');
+  const actualRead = fs.readFile;
+  fs.readFile = async (file, ...args) => {
+    if (file === config) throw Object.assign(new Error('Injected source access failure'), { code: 'EACCES', path: file });
+    return actualRead(file, ...args);
+  };
+  try {
+    await assert.rejects(runInstall({ ...f, skipDist: true }), error => {
+      assert.equal(error.code, 'EACCES');
+      assert.equal(error.oceanWindowNativeAccessError, undefined);
+      assert.equal(error.message, 'Injected source access failure');
+      return true;
+    });
+  } finally { fs.readFile = actualRead; }
 });

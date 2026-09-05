@@ -30,18 +30,44 @@ async function regularFile(file) {
   return stat;
 }
 
-async function resolveAppRoot(explicit) {
+export async function resolveAppRoot(explicit, resolution = {}) {
   if (explicit) return fs.realpath(path.resolve(explicit));
-  const candidates = [...(process.env.PATH || '').split(path.delimiter).filter(Boolean).map(directory => path.join(directory, 'code-insiders.cmd')),
-    path.join(process.env.LOCALAPPDATA || path.join(os.homedir(), 'AppData', 'Local'), 'Programs', 'Microsoft VS Code Insiders', 'bin', 'code-insiders.cmd')];
-  for (const command of [...new Set(candidates)]) {
-    if (!await exists(command)) continue;
-    const text = await fs.readFile(command, 'utf8');
-    const match = text.match(/%~dp0([^"\r\n]*resources[\\/]app)[\\/]out[\\/]cli\.js/i);
-    if (!match) continue;
-    return fs.realpath(path.resolve(path.dirname(command), match[1].replace(/[\\/]/g, path.sep)));
+  const platform = resolution.platform || process.platform;
+  const environment = resolution.environment || process.env;
+  const userHome = resolution.userHome || os.homedir();
+  const pathEntries = (environment.PATH || '').split(path.delimiter).filter(Boolean);
+  if (platform === 'win32') {
+    const candidates = [...pathEntries.map(directory => path.join(directory, 'code-insiders.cmd')),
+      path.join(environment.LOCALAPPDATA || path.join(userHome, 'AppData', 'Local'), 'Programs', 'Microsoft VS Code Insiders', 'bin', 'code-insiders.cmd')];
+    for (const command of [...new Set(candidates)]) {
+      if (!await exists(command)) continue;
+      const text = await fs.readFile(command, 'utf8');
+      const match = text.match(/%~dp0([^"\r\n]*resources[\\/]app)[\\/]out[\\/]cli\.js/i);
+      if (!match) continue;
+      return fs.realpath(path.resolve(path.dirname(command), match[1].replace(/[\\/]/g, path.sep)));
+    }
+  } else {
+    // Resolve launcher symlinks without executing a shell or a VS Code process.
+    const roots = [];
+    for (const directory of pathEntries) {
+      const command = path.join(directory, 'code-insiders');
+      if (!await exists(command)) continue;
+      const launcher = await fs.realpath(command);
+      roots.push(path.resolve(path.dirname(launcher), '..', 'resources', 'app'),
+        path.resolve(path.dirname(launcher), '..'));
+    }
+    roots.push(...(platform === 'darwin'
+      ? [path.join('/Applications', 'Visual Studio Code - Insiders.app', 'Contents', 'Resources', 'app'),
+        path.join(userHome, 'Applications', 'Visual Studio Code - Insiders.app', 'Contents', 'Resources', 'app')]
+      : ['/usr/share/code-insiders/resources/app', '/usr/lib/code-insiders/resources/app']));
+    for (const candidate of [...new Set(roots)]) {
+      if (!await exists(candidate)) continue;
+      const root = await fs.realpath(candidate);
+      try { await locateWorkbench(root); return root; }
+      catch (error) { if (!error.message.startsWith('Cannot find workbench HTML under ')) throw error; }
+    }
   }
-  throw new Error('Cannot resolve active VS Code Insiders from bin/code-insiders.cmd. Pass --app-root with its resources/app directory.');
+  throw new Error('Cannot resolve VS Code Insiders. Pass --app-root with its resources/app directory (macOS: Contents/Resources/app).');
 }
 
 async function locateWorkbench(appRoot) {
@@ -317,7 +343,7 @@ async function runInstallUnlocked(options = {}) {
 }
 
 // Serialize CLI, extension windows, and the uninstall hook against this exact workbench.
-export async function runInstall(options = {}) {
+async function runInstallWithLock(options) {
   if (options.dryRun) return runInstallUnlocked(options);
   const appRoot = await resolveAppRoot(options.appRoot);
   const htmlPath = await locateWorkbench(appRoot);
@@ -349,6 +375,23 @@ export async function runInstall(options = {}) {
   } finally {
     await handle.close().catch(() => {});
     if (await fs.readFile(lockPath, 'utf8').catch(() => '') === content) await fs.unlink(lockPath);
+  }
+}
+
+export async function runInstall(options = {}) {
+  const appRoot = await resolveAppRoot(options.appRoot);
+  try { return await runInstallWithLock({ ...options, appRoot }); }
+  catch (error) {
+    const failurePath = typeof error.path === 'string' ? path.resolve(error.path) : undefined;
+    if (!['EACCES', 'EPERM', 'EROFS'].includes(error.code) || !failurePath ||
+        (failurePath !== appRoot && !inside(appRoot, failurePath))) throw error;
+    const reason = error.code === 'EROFS' ? 'is on a read-only filesystem' : 'does not allow this user to write its files';
+    const explained = new Error(`The VS Code application ${reason}: ${appRoot}. Ocean Window needs write access to that installation. Use a user-writable installation; for Linux, the official .tar.gz archive extracted into your home directory is one option. A read-only Snap installation cannot be patched. No permissions are changed automatically. Original error: ${error.message}`, { cause: error });
+    explained.code = error.code;
+    explained.path = error.path;
+    explained.appRoot = appRoot;
+    explained.oceanWindowNativeAccessError = true;
+    throw explained;
   }
 }
 

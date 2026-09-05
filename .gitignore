@@ -7,6 +7,8 @@ playwright-report/
 .test-app/
 .test-profile-native/
 .test-extensions-native/
+.test-linux/
+.test-linux-*/
 .build/
 releases/*.vsix
 .publish-profile/

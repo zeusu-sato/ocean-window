@@ -14,7 +14,7 @@ assert.ok(page, 'Only the isolated native test window may be controlled');
 const appRoot = path.resolve('.test-app/resources/app');
 const htmlPath = path.join(appRoot, 'out/vs/code/electron-browser/workbench/workbench.html');
 const marker = '<!-- OCEAN-WINDOW:START -->';
-const report = { verifiedAt: new Date().toISOString(), package: `${manifest.name}-${manifest.version}-win32-x64.vsix`, cases: [] };
+const report = { verifiedAt: new Date().toISOString(), package: `${manifest.name}-${manifest.version}.vsix`, cases: [] };
 async function command(text) {
   await page.keyboard.press('Control+Shift+P');
   const input = page.locator('.quick-input-widget input').first();

@@ -4,7 +4,7 @@ A quiet view of the world's oceans, only while your VS Code editor is empty.
 
 何も開いていないエリアを、世界の海が見える窓に。コードや Markdown を開けば、いつもの作業画面に戻ります。
 
-[Install from VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=zeusu-sato.ocean-window) · [Download Windows x64 VSIX](https://github.com/zeusu-sato/ocean-window/releases/download/v0.2.0/ocean-window-0.2.0-win32-x64.vsix) · [Release notes](https://github.com/zeusu-sato/ocean-window/releases/tag/v0.2.0) · [Full guide](extension/README.md) · [Issues](https://github.com/zeusu-sato/ocean-window/issues)
+[Install from VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=zeusu-sato.ocean-window) · [Download universal VSIX](https://github.com/zeusu-sato/ocean-window/releases/download/v0.2.1/ocean-window-0.2.1.vsix) · [Release notes](https://github.com/zeusu-sato/ocean-window/releases/tag/v0.2.1) · [Full guide](extension/README.md) · [Issues](https://github.com/zeusu-sato/ocean-window/issues)
 
 ![Browser layout preview showing a narrow ocean scene beside the work area](docs/ocean-window-preview.png)
 
@@ -18,7 +18,7 @@ Browser layout preview using the actual wallpaper renderer. Photograph: [Matira 
 
 **Experimental: Ocean Window changes VS Code's installed workbench HTML and triggers its integrity warning.** It preserves the existing Content Security Policy and integrity checks. Installing the extension alone does not apply the wallpaper. The change affects every window and profile using that VS Code installation and may need reapplication after VS Code updates.
 
-This preview targets Windows x64 and has been tested with VS Code Insiders 1.137.0. Stable builds and other platforms are not yet verified. Version 0.2.0 is published on the VS Code Marketplace and GitHub; see the [publication status](docs/publication.md).
+Version 0.2.1 is a universal desktop preview for VS Code 1.130 or later, including Insiders. It removes the Windows x64 packaging restriction in 0.2.0. Enabling the wallpaper requires write access to the VS Code installation; on Linux, a user-owned official `.tar.gz` installation can provide this. Read-only Snap installations cannot be patched. See [tested platforms and publication status](docs/publication.md); macOS remains unverified.
 
 ## A different sea outside your editor
 
@@ -60,6 +60,6 @@ To build the VSIX with the publisher identity in the manifest:
 npm run package:extension
 ```
 
-The package is written to `releases/`. [Publication notes](docs/publication.md) describe the tested scope and remaining Marketplace steps. Standalone PowerShell installers remain available for development: `./install.ps1 -DryRun`, `./install.ps1`, and `./uninstall.ps1`; their default target is the installed VS Code Insiders.
+The universal package is written to `releases/`. [Publication notes](docs/publication.md) describe the tested scope. The standalone installer is also available through `node tools/install.mjs --dry-run`, `node tools/install.mjs`, and `node tools/install.mjs --uninstall`; its default target is the installed VS Code Insiders. Windows PowerShell wrappers remain available as `./install.ps1 -DryRun`, `./install.ps1`, and `./uninstall.ps1`.
 
 Code is [MIT licensed](LICENSE). Photographs retain their individual licenses: see [photo credits](docs/photo-sources.md) and [source metadata](assets/photo-provenance.json).

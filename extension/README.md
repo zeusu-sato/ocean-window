@@ -4,13 +4,13 @@ A quiet window onto the world's oceans, only while your editor is empty.
 
 Ocean Window replaces the unused editor watermark with a real coastal photograph. Open code, Markdown, a preview, or another editor and the scene disappears. Your normal editor background and chat colors remain in place.
 
-[GitHub release](https://github.com/zeusu-sato/ocean-window/releases/tag/v0.2.0) · [Source code](https://github.com/zeusu-sato/ocean-window) · [Report an issue](https://github.com/zeusu-sato/ocean-window/issues)
+[VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=zeusu-sato.ocean-window) · [GitHub release](https://github.com/zeusu-sato/ocean-window/releases/tag/v0.2.1) · [Source code](https://github.com/zeusu-sato/ocean-window) · [Report an issue](https://github.com/zeusu-sato/ocean-window/issues)
 
 ![Browser layout preview showing a narrow ocean scene beside the work area](https://raw.githubusercontent.com/zeusu-sato/ocean-window/main/docs/ocean-window-preview.png)
 
 Browser layout preview using the actual wallpaper renderer. Photograph: [Matira Beach, Bora Bora](https://commons.wikimedia.org/wiki/File:Matira_Beach,_Bora_Bora,_French_Polynesia.jpg) by Scott Williams, [CC BY 2.5](https://creativecommons.org/licenses/by/2.5), displayed with a crop and dark overlay.
 
-The Windows preview is available as a VSIX from the GitHub release above. See the [publication status](https://github.com/zeusu-sato/ocean-window/blob/main/docs/publication.md) for Marketplace availability.
+The preview is available from the Marketplace and as a universal desktop VSIX from GitHub. Version 0.2.1 removes the Windows-only package restriction and supports VS Code 1.130 or later, including Insiders. See the [tested platforms and publication status](https://github.com/zeusu-sato/ocean-window/blob/main/docs/publication.md).
 
 ## Experimental native wallpaper
 
@@ -18,12 +18,14 @@ The Windows preview is available as a VSIX from the GitHub release above. See th
 
 Installing the extension does not apply the wallpaper. You explicitly enable it with the command below. The change applies to this VS Code installation, across its windows and profiles, and may need reapplication after VS Code updates. Enabling it requires write access to your VS Code installation. Administrator privileges are not requested automatically.
 
-The initial preview package targets Windows x64 desktop. Rendering has been tested with VS Code Insiders 1.137.0. Stable builds are not yet verified. VS Code for the Web is not supported. It is configured as a local UI extension for WSL and Remote SSH workspaces; those combinations have not yet been tested.
+The package contains JavaScript with no platform-specific binaries. macOS has not yet been verified. VS Code for the Web is not supported. It is configured as a local UI extension for WSL and Remote SSH workspaces; those remote workspace combinations have not yet been tested.
+
+On Linux, system-managed `.deb`/`.rpm` installations may not be writable by your account, and read-only Snap installations cannot be patched. Use an official VS Code `.tar.gz` installation extracted into a directory you own if write access is unavailable. Ocean Window reports this limitation without changing permissions or requesting elevation.
 
 ## Start looking out
 
-1. Download the [Windows x64 VSIX](https://github.com/zeusu-sato/ocean-window/releases/download/v0.2.0/ocean-window-0.2.0-win32-x64.vsix).
-2. In VS Code's Extensions view, choose **… → Install from VSIX…** and select it.
+1. Install **Ocean Window** by **Zeusu Sato** from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=zeusu-sato.ocean-window), choosing the pre-release version if prompted.
+2. Alternatively, download the [universal VSIX](https://github.com/zeusu-sato/ocean-window/releases/download/v0.2.1/ocean-window-0.2.1.vsix) and use **Extensions → … → Install from VSIX…**.
 3. Open the Command Palette and run **Ocean Window: Enable / Apply Ocean Wallpaper**. Read the native customization notice and enable it.
 4. Reload the window when your running work is ready.
 
@@ -79,4 +81,6 @@ For troubleshooting and restoration help, see [Support](https://github.com/zeusu
 
 VS Code本体の表示ファイルを変更する実験的な方式のため、整合性警告が出ます。解除は **Ocean Window: 元のエディターに戻す** を実行してから再読み込みします。拡張を「無効」にするだけでは、適用済みの壁紙は解除されません。
 
-GitHub から VSIX をダウンロードできます。Marketplace への掲載状況は[公開状況](https://github.com/zeusu-sato/ocean-window/blob/main/docs/publication.md)をご覧ください。旧 `ocean-window-local` 版を使っていた場合は、旧版を復元・削除し、VS Code を完全に終了して起動し直してから新版を有効にしてください。
+Marketplace または GitHub の共通 VSIX からインストールできます。0.2.1 から Windows 限定を外し、VS Code 1.130 以降（Insiders 含む）に対応しています。Linux では VS Code 本体への書き込み権限が必要です。読み取り専用の Snap 版では適用できないため、公式の `.tar.gz` 版を自分のホームディレクトリなどに展開して使ってください。
+
+旧 `ocean-window-local` 版を使っていた場合は、旧版を復元・削除し、VS Code を完全に終了して起動し直してから新版を有効にしてください。

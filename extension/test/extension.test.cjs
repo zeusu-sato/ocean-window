@@ -203,6 +203,19 @@ test('web host refuses native operations without asking consent', async t => {
   assert.equal(f.errors().length, 2);
 });
 
+test('Japanese native permission errors explain a writable Linux installation without changing permissions', async t => {
+  const f = await fixture(t, { language: 'ja', onInstall: async () => {
+    throw Object.assign(new Error('Native access denied'), { code: 'EROFS', appRoot: '/snap/code-insiders/current/resources/app',
+      oceanWindowNativeAccessError: true, cause: new Error('Read-only file system') });
+  } });
+  await f.controller.enable();
+  assert.equal(f.mutations().length, 0);
+  assert.match(f.errors()[0].message, /読み取り専用/);
+  assert.match(f.errors()[0].message, /\.tar\.gz/);
+  assert.match(f.errors()[0].message, /権限は自動変更しません/);
+  assert.equal(f.execution.length, 0);
+});
+
 test('desktop UI host accepts the current vscode-userdata scheme backed by an absolute local path', async t => {
   const f = await fixture(t, { storageScheme: 'vscode-userdata' });
   await f.controller.register();

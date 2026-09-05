@@ -67,17 +67,19 @@ try {
   await fs.copyFile(path.join(stage, 'icon.png'), path.join(root, 'extension/media/icon.png'));
 } finally { await browser.close(); }
 
-const result = { staged: stage, publisher, preview: true, target: 'win32-x64' };
+// Pure JavaScript runtime: no platform-specific binaries or native dependencies.
+// Omitting vsce's --target emits a universal desktop VSIX.
+const result = { staged: stage, publisher, preview: true, target: 'universal' };
 if (packageVsix) {
   const releases = path.join(root, 'releases');
   await fs.mkdir(releases, { recursive: true });
-  const output = path.join(releases, `ocean-window-${manifest.version}-win32-x64.vsix`);
+  const output = path.join(releases, `ocean-window-${manifest.version}.vsix`);
   const vsceManifestPath = path.join(root, 'node_modules/@vscode/vsce/package.json');
   const vsceManifest = JSON.parse(await fs.readFile(vsceManifestPath, 'utf8'));
   const cli = path.resolve(path.dirname(vsceManifestPath), vsceManifest.bin.vsce);
   await new Promise((resolve, reject) => {
     const child = spawn(process.execPath, [cli, 'package', '--no-dependencies', '--allow-missing-repository',
-      '--target', 'win32-x64', '--pre-release', '--out', output], { cwd: stage, stdio: 'inherit', windowsHide: true });
+      '--pre-release', '--out', output], { cwd: stage, stdio: 'inherit', windowsHide: true });
     child.once('error', reject);
     child.once('exit', code => code === 0 ? resolve() : reject(new Error(`vsce exited with ${code}`)));
   });

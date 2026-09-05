@@ -108,7 +108,10 @@ function createController(vscode, context, dependencies = {}) {
   }
   function reportError(error) {
     log(error.stack || error.message || String(error));
-    notify(() => vscode.window.showErrorMessage(local('Ocean Window could not complete the operation: ', 'Ocean Window の操作を完了できませんでした: ') + error.message));
+    const detail = japanese && error.oceanWindowNativeAccessError
+      ? `VS Code 本体への書き込みが許可されていないか、読み取り専用になっています: ${error.appRoot}。Ocean Window の適用には、本体への書き込み権限が必要です。Linux では公式の .tar.gz 版をホームディレクトリに展開して使う方法があります。読み取り専用の Snap 版には適用できません。権限は自動変更しません。元のエラー: ${error.cause?.message || error.message}`
+      : error.message;
+    notify(() => vscode.window.showErrorMessage(local('Ocean Window could not complete the operation: ', 'Ocean Window の操作を完了できませんでした: ') + detail));
   }
   function command(operation) { return () => serialize(operation).catch(reportError); }
   function requireDesktop() {

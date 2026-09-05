@@ -1,6 +1,6 @@
 # Support
 
-This is an experimental native wallpaper preview for Windows x64 desktop.
+This is an experimental native wallpaper preview for desktop VS Code 1.130 or later, including Insiders. Version 0.2.1 uses a universal package; version 0.2.0 was restricted to Windows x64 and required VS Code 1.136.
 
 [Report an issue](https://github.com/zeusu-sato/ocean-window/issues) · [Full guide](https://github.com/zeusu-sato/ocean-window/blob/main/extension/README.md) · [GitHub releases](https://github.com/zeusu-sato/ocean-window/releases)
 
@@ -16,4 +16,8 @@ Do not delete or overwrite the whole VS Code installation to remove this wallpap
 
 When moving from `ocean-window-local.ocean-window` to `zeusu-sato.ocean-window`, restore and uninstall the old preview, then completely quit and restart VS Code before enabling the replacement. This allows the old extension's delayed uninstall cleanup to finish first.
 
-Download the preview from GitHub and check the [publication status](https://github.com/zeusu-sato/ocean-window/blob/main/docs/publication.md) for Marketplace availability.
+If Linux reports an incompatible platform or requires VS Code 1.136, check that you are installing **0.2.1 or later**. Use the Marketplace pre-release or the universal VSIX from GitHub.
+
+Installing the extension and applying the native wallpaper are separate steps. Application requires write access to VS Code's `resources/app` directory. System-managed `.deb`/`.rpm` installations may deny this, and read-only Snap installations cannot be patched. An official VS Code `.tar.gz` extracted into a directory you own is an alternative. Do not run VS Code as root or broadly change system permissions to enable the wallpaper. Ocean Window leaves permissions unchanged and reports the installation path when access is denied.
+
+See the [publication status and tested platforms](https://github.com/zeusu-sato/ocean-window/blob/main/docs/publication.md).
