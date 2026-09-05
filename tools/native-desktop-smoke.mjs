@@ -72,6 +72,7 @@ let page;
 let appLog;
 let receiptPath;
 let installedRoot;
+let nativeApp;
 let stage = 'install';
 
 function spawnOwned(command, args, options = {}) {
@@ -131,6 +132,57 @@ async function connect(port, child) {
     catch { await new Promise(resolve => setTimeout(resolve, 250)); }
   }
   throw new Error('Native macOS workbench did not expose CDP within 45 seconds');
+}
+
+async function launchApplication() {
+  const port = await freePort();
+  const appEnv = { ...process.env };
+  delete appEnv.ELECTRON_RUN_AS_NODE;
+  if (!appLog) appLog = await fs.open(path.join(output, 'application.log'), 'a');
+  nativeApp = spawnOwned(executable, [
+    `--user-data-dir=${profile}`, `--extensions-dir=${extensions}`, `--shared-data-dir=${shared}`,
+    '--locale=en', '--skip-welcome', '--skip-release-notes', '--new-window', `--remote-debugging-port=${port}`
+  ], { env: appEnv, stdio: ['ignore', appLog.fd, appLog.fd] });
+  nativeApp.once('error', error => { report.launchError = String(error); });
+  browser = await connect(port, nativeApp);
+  page = undefined;
+  const deadline = Date.now() + 30_000;
+  while (!page && Date.now() < deadline) {
+    page = browser.contexts().flatMap(context => context.pages()).find(candidate => {
+      const url = decodeURIComponent(candidate.url());
+      return url.includes(appRoot) && url.endsWith('/workbench.html');
+    });
+    if (!page) await new Promise(resolve => setTimeout(resolve, 100));
+  }
+  assert.ok(page, 'Only the supplied native macOS application may be controlled');
+  page.setDefaultTimeout(20_000);
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.bringToFront();
+  await page.waitForSelector('.monaco-workbench');
+}
+
+async function coldRestartApplication() {
+  const precedingApp = nativeApp;
+  const precedingPid = precedingApp.pid;
+  await browser.close();
+  browser = undefined;
+  page = undefined;
+  const stopped = new Promise(resolve => {
+    if (precedingApp.exitCode !== null || precedingApp.signalCode !== null) resolve();
+    else precedingApp.once('exit', resolve);
+  });
+  terminateGroup(precedingApp);
+  await Promise.race([stopped, new Promise(resolve => setTimeout(resolve, 3000))]);
+  terminateGroup(precedingApp, 'SIGKILL');
+  await Promise.race([stopped, new Promise((_, reject) => setTimeout(() => reject(new Error('The preceding native application did not exit before cold restart')), 3000))]);
+  ownedChildren.delete(precedingApp);
+  await htmlHasPatch(true);
+  await launchApplication();
+  assert.notEqual(nativeApp.pid, precedingPid, 'Cold restart must create a new native application process');
+  await page.waitForSelector('.ocean-window[data-ready="true"]', { state: 'visible', timeout: 45_000 });
+  await readReceipt('enabled');
+  report.coldRestart = { precedingPid, relaunchedPid: nativeApp.pid, sameApplicationAndProfile: true, securitySettingsModified: false };
+  await page.screenshot({ path: path.join(output, 'cold-restart.png') });
 }
 
 async function command(text) {
@@ -202,28 +254,7 @@ async function verify() {
   report.extensionVersion = extensionFolders[0].manifest.version;
   receiptPath = path.join(extensions, '.ocean-window/zeusu-sato.ocean-window.json');
   stage = 'launch';
-  const port = await freePort();
-  const appEnv = { ...process.env };
-  delete appEnv.ELECTRON_RUN_AS_NODE;
-  appLog = await fs.open(path.join(output, 'application.log'), 'a');
-  const app = spawnOwned(executable, [...isolationArgs, '--locale=en', '--skip-welcome', '--skip-release-notes', '--new-window', `--remote-debugging-port=${port}`], {
-    env: appEnv, stdio: ['ignore', appLog.fd, appLog.fd]
-  });
-  app.once('error', error => { report.launchError = String(error); });
-  browser = await connect(port, app);
-  const deadline = Date.now() + 30_000;
-  while (!page && Date.now() < deadline) {
-    page = browser.contexts().flatMap(context => context.pages()).find(candidate => {
-      const url = decodeURIComponent(candidate.url());
-      return url.includes(appRoot) && url.endsWith('/workbench.html');
-    });
-    if (!page) await new Promise(resolve => setTimeout(resolve, 100));
-  }
-  assert.ok(page, 'Only the supplied native macOS application may be controlled');
-  page.setDefaultTimeout(20_000);
-  await page.setViewportSize({ width: 1280, height: 900 });
-  await page.bringToFront();
-  await page.waitForSelector('.monaco-workbench');
+  await launchApplication();
   stage = 'opt-in';
   await command('View: Close All Editors');
   await htmlHasPatch(false);
@@ -265,6 +296,9 @@ async function verify() {
   await command('View: Close All Editors');
   await page.waitForSelector('.ocean-window[data-ready="true"]', { state: 'visible' });
   report.cases.push('Closing all files restores the sea in the empty editor');
+  stage = 'cold-restart';
+  await coldRestartApplication();
+  report.cases.push('The patched macOS application cold-launches in a new native process with the same profile and displays the sea again');
   stage = 'restore';
   await command('Ocean Window: Restore Original Editor');
   await htmlHasPatch(false);
