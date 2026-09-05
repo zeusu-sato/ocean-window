@@ -9,6 +9,7 @@ playwright-report/
 .test-extensions-native/
 .test-linux/
 .test-linux-*/
+macos-smoke-artifacts/
 .build/
 releases/*.vsix
 .publish-profile/

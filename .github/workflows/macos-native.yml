@@ -1,0 +1,65 @@
+name: macOS native release verification
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: Published extension version (blank uses extension/package.json)
+        required: false
+        type: string
+  release:
+    types: [published]
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/macos-native.yml
+      - tools/prepare-macos-smoke.mjs
+      - tools/native-desktop-smoke.mjs
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    name: ${{ matrix.runner }} / ${{ matrix.channel }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-15, macos-15-intel]
+        channel: [stable, insider]
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Installer and extension regression tests on macOS
+        run: node --test tools/install.test.mjs tools/source.test.mjs extension/test/extension.test.cjs extension/test/uninstall.test.cjs
+      - name: Download official VS Code and published VSIX with SHA-256 verification
+        id: prepare
+        env:
+          OCEAN_SMOKE_CHANNEL: ${{ matrix.channel }}
+          OCEAN_SMOKE_RELEASE: ${{ inputs.release_version || github.event.release.tag_name }}
+        run: node tools/prepare-macos-smoke.mjs
+      - name: Install, display, and restore the published extension in native VS Code
+        env:
+          SMOKE_APP_ROOT: ${{ steps.prepare.outputs.app_root }}
+          SMOKE_EXECUTABLE: ${{ steps.prepare.outputs.executable }}
+          SMOKE_VSIX: ${{ steps.prepare.outputs.vsix }}
+          SMOKE_OUTPUT: ${{ steps.prepare.outputs.output }}
+        run: node tools/native-desktop-smoke.mjs --app-root "$SMOKE_APP_ROOT" --executable "$SMOKE_EXECUTABLE" --vsix "$SMOKE_VSIX" --output "$SMOKE_OUTPUT"
+      - name: Save native test results and screenshots
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: macos-${{ matrix.runner }}-${{ matrix.channel }}
+          path: |
+            macos-smoke-artifacts/*.json
+            macos-smoke-artifacts/*.log
+            macos-smoke-artifacts/*.png
+          retention-days: 14
