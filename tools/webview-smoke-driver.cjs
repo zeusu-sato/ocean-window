@@ -4,7 +4,7 @@ const path = require('node:path');
 
 exports.activate = function activate(context) {
   const bridge = process.env.OCEAN_SMOKE_BRIDGE;
-  if (!bridge || !path.isAbsolute(bridge) || !/^ow-webview-[A-Za-z0-9]+$/.test(path.basename(bridge))) throw new Error('Private smoke bridge required');
+  if (!bridge || !path.isAbsolute(bridge) || !/^ow-webview-[A-Za-z0-9-]+$/.test(path.basename(bridge))) throw new Error('Private smoke bridge required');
   let lastId;
   let busy = false;
   function snapshot() {

@@ -1,12 +1,12 @@
 # Distribution and validation
 
-## Current 0.3.0 release work
+## Published 0.3.0 release
 
 Version **0.3.0** replaces application-file patching with a standard Webview scene. The extension opens a temporary Ocean Window tab in an empty editor group, closes it when a real editor opens, and remembers its on/off state per workspace. Showing the scene requires no native file write, permission change, administrator access, or window reload. The existing extension ID remains `zeusu-sato.ocean-window`.
 
 The universal package targets regular VS Code and Insiders **1.130 or later** on Windows, Linux, Intel Macs, and Apple Silicon Macs. VS Code for the Web is currently unsupported.
 
-The final 0.3.0 package has passed native Linux and Windows checks, and the same source passed the four native Mac combinations below. Marketplace validation is in progress. The historical 0.2.x results are recorded separately.
+The final 0.3.0 package has passed native Linux, Windows, and all four Mac combinations below. On 2026-09-05, Microsoft's public Gallery returned the validated **0.3.0 universal prerelease**, with engine requirement `^1.130.0`. Unauthenticated downloads from both Marketplace and the [GitHub release](https://github.com/zeusu-sato/ocean-window/releases/tag/v0.3.0) matched the tested VSIX SHA-256 exactly. The historical 0.2.x results are recorded separately.
 
 The [Marketplace listing](https://marketplace.visualstudio.com/items?itemName=zeusu-sato.ocean-window), [GitHub releases](https://github.com/zeusu-sato/ocean-window/releases), and [source repository](https://github.com/zeusu-sato/ocean-window) retain their existing locations. Publisher **zeusu-sato**, displayed as **Zeusu Sato**, uses [dorodango.biz](https://dorodango.biz) as its publisher homepage.
 
@@ -40,7 +40,7 @@ The final VSIX passed **12 checks** on native Windows x64 VS Code Insiders **1.1
 
 The source at `fd6fa1a` also passed **13 checks in each of four macOS 15 combinations**: Intel x64 and Apple Silicon arm64, each running regular VS Code **1.136.1** and Insiders **1.137.0**. Besides the scene/file lifecycle, these checks stop the native application and start a new process with the same profile and workspace, verifying the saved photo, pause state, and next shuffle choice. All four applications retained their original workbench HTML and directory contents. [Mac Webview verification run](https://github.com/zeusu-sato/ocean-window/actions/runs/33971066169).
 
-Those Mac candidates were built from the checked-out source on each runner; their ZIP hashes differ from the Windows-packaged release artifact. The release-triggered workflow checks the exact published VSIX separately. Windows/Linux ARM and WSL/Remote SSH workspace combinations remain unverified.
+Those initial Mac candidates were built from the checked-out source on each runner. The exact published VSIX subsequently passed the same **13 checks in all four Mac combinations**, with every report recording SHA-256 `c949c51e0e43a5ad254c92b3e3857eaf44773f4ff43bb14098f1a7150c5d17d8`, successful cold restart, and unchanged native files. [Published-package Mac run](https://github.com/zeusu-sato/ocean-window/actions/runs/33971360461/attempts/2). Its first attempt stopped before installation because the release checksum asset was named without the expected `.txt` suffix; renaming that checksum asset allowed the same run to pass, with no VSIX change. Windows/Linux ARM and WSL/Remote SSH workspace combinations remain unverified.
 
 ## Legacy migration
 
