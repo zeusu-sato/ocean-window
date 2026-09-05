@@ -4,6 +4,7 @@ Launch status, 2026-09-06 (JST):
 
 - [X announcement](https://x.com/dorodango_zeusu/status/2096249595106103648), with screenshot and [photo attribution reply](https://x.com/dorodango_zeusu/status/2096249934643425756): published.
 - [Qiita article](https://qiita.com/DoroDango/items/87fd1e5331e5496ff206): published. Article source: [qiita.md](qiita.md).
+- [LinkedIn announcement](https://www.linkedin.com/feed/update/urn:li:activity:7502029349836075008/): published to Anyone as one English/Japanese post, with one application screenshot and photo credits at the end. The initial signed-out check showed both languages and the image.
 - Facebook: published to Friends. The account's default audience was not changed.
 - [Reddit submission](https://www.reddit.com/r/VSCodeExtensions/comments/1w83gzf/i_made_ocean_window_a_beach_view_for_your_empty/): submitted, then removed by Reddit's filters. Not publicly visible.
 - GitHub discovery topics and the Marketplace homepage link: updated.
@@ -30,6 +31,32 @@ Attribution reply, posted directly under the image post:
 
 ```text
 Photo: Cala Macarella by Paul Stephenson, CC BY 2.0. Cropped with a dark overlay.
+https://commons.wikimedia.org/wiki/File:Cala_Macarella.jpg
+https://creativecommons.org/licenses/by/2.0/
+```
+
+## LinkedIn: English and Japanese post
+
+Published to Anyone with `docs/ocean-window-webview-preview.png` attached. Photo credits are included at the end of the post.
+
+```text
+What if VS Code had a beach view? 🌊
+
+I made Ocean Window to give an empty editor a sea view. It shuffles photos of beaches around the world.
+Open a file and the ocean tab closes. Close your files and the sea returns.
+
+Free for Windows, Linux, and Mac. Available as a pre-release.
+
+VS Codeが世界中のビーチリゾートの窓に？🌊
+
+世界の海をシャッフル表示する「Ocean Window」を作りました。
+コードや Markdown ファイルを開くと、海は引っ込みます。ファイルを閉じると、また海が戻ってきます。
+
+無料。Windows / Linux / Mac対応。プレリリース版を公開中です。
+
+https://marketplace.visualstudio.com/items?itemName=zeusu-sato.ocean-window
+
+Photo: Cala Macarella / Paul Stephenson / CC BY 2.0. Cropped with a dark overlay.
 https://commons.wikimedia.org/wiki/File:Cala_Macarella.jpg
 https://creativecommons.org/licenses/by/2.0/
 ```
