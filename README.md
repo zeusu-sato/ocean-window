@@ -19,7 +19,7 @@ Browser layout preview using the actual wallpaper renderer. Photograph: [Matira 
 
 **Experimental: Ocean Window changes VS Code's installed workbench HTML and triggers its integrity warning.** It preserves the existing Content Security Policy and integrity checks. Installing the extension alone does not apply the wallpaper. The change affects every window and profile using that VS Code installation and may need reapplication after VS Code updates.
 
-This preview targets Windows x64 and has been tested with VS Code Insiders 1.137.0. Stable builds and other platforms are not yet verified. The extension is distributed through GitHub; **it is not published on the VS Code Marketplace**. Publisher registration and Marketplace submission are pending.
+This preview targets Windows x64 and has been tested with VS Code Insiders 1.137.0. Stable builds and other platforms are not yet verified. The extension is available from GitHub. It has also been submitted to the VS Code Marketplace and is awaiting Microsoft's verification; see the [publication status](docs/publication.md).
 
 ## A different sea outside your editor
 
