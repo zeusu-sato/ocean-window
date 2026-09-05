@@ -18,7 +18,9 @@ The preview is available from the Marketplace and as a universal desktop VSIX fr
 
 Installing the extension does not apply the wallpaper. You explicitly enable it with the command below. The change applies to this VS Code installation, across its windows and profiles, and may need reapplication after VS Code updates. Enabling it requires write access to your VS Code installation. Administrator privileges are not requested automatically.
 
-The package contains JavaScript with no platform-specific binaries. macOS has not yet been verified. VS Code for the Web is not supported. It is configured as a local UI extension for WSL and Remote SSH workspaces; those remote workspace combinations have not yet been tested.
+The same package supports Windows, macOS (Intel and Apple Silicon), and Linux, in both regular VS Code and Insiders. It contains JavaScript with no platform-specific binaries and does not require M1 or later. Mac native validation was added after the initial 0.2.1 publication; see the [current validation results](https://github.com/zeusu-sato/ocean-window/blob/main/docs/publication.md). VS Code for the Web is not supported. It is configured as a local UI extension for WSL and Remote SSH workspaces; those remote workspace combinations have not yet been tested.
+
+On Mac, follow the [official installation instructions](https://code.visualstudio.com/docs/setup/mac): copy the application into Applications and launch that copy before applying the wallpaper. The application must be writable by your account. See the [Mac guide](https://github.com/zeusu-sato/ocean-window/blob/main/docs/macos.md).
 
 On Linux, system-managed `.deb`/`.rpm` installations may not be writable by your account, and read-only Snap installations cannot be patched. Use an official VS Code `.tar.gz` installation extracted into a directory you own if write access is unavailable. Ocean Window reports this limitation without changing permissions or requesting elevation.
 
@@ -82,5 +84,7 @@ For troubleshooting and restoration help, see [Support](https://github.com/zeusu
 VS Code本体の表示ファイルを変更する実験的な方式のため、整合性警告が出ます。解除は **Ocean Window: 元のエディターに戻す** を実行してから再読み込みします。拡張を「無効」にするだけでは、適用済みの壁紙は解除されません。
 
 Marketplace または GitHub の共通 VSIX からインストールできます。0.2.1 から Windows 限定を外し、VS Code 1.130 以降（Insiders 含む）に対応しています。Linux では VS Code 本体への書き込み権限が必要です。読み取り専用の Snap 版では適用できないため、公式の `.tar.gz` 版を自分のホームディレクトリなどに展開して使ってください。
+
+Mac は Intel・Apple Silicon の両方が対象で、M1 以降に限定していません。通常版と Insiders のどちらでも同じ拡張を使えます。VS Code を Applications にコピーしてから起動し、`⌘⇧P` でコマンドパレットを開いて有効化します。
 
 旧 `ocean-window-local` 版を使っていた場合は、旧版を復元・削除し、VS Code を完全に終了して起動し直してから新版を有効にしてください。

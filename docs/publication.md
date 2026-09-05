@@ -30,9 +30,13 @@ Both Linux builds passed nine checks with the exact release VSIX: installation a
 
 The exact historical **1.130.0-insider** binary was unavailable from the named download endpoint. Compatibility is supported by the 1.130 stable native test and review of the official 1.130 API definitions, alongside the newer Insiders native test.
 
-The preceding 0.2.0 release was also tested natively in an isolated **Windows x64 VS Code Insiders 1.137.0** installation, including activation, enable, status, settings, restoration, code and Markdown display, and the directly invoked uninstall hook. macOS, ARM architectures, and WSL/Remote SSH workspace combinations remain unverified. VS Code for the Web is unsupported.
+The preceding 0.2.0 release was also tested natively in an isolated **Windows x64 VS Code Insiders 1.137.0** installation, including activation, enable, status, settings, restoration, code and Markdown display, and the directly invoked uninstall hook. Windows/Linux ARM architectures and WSL/Remote SSH workspace combinations remain unverified. VS Code for the Web is unsupported.
+
+The same published 0.2.1 binary subsequently passed native checks on **macOS 15, both Intel x64 and Apple Silicon arm64**, with **regular VS Code 1.136.1** (`a44adf7f53e00964ab890f9f8758a334f1fc15bc`) and **Insiders 1.137.0** (`de8cc55dae905582f191fdcfb6dff8c811a743c4`). All four combinations passed ten checks covering installation, opt-in, status, online image loading, code and Markdown hiding the scenery, returning to an empty editor, a full application restart with the wallpaper applied, restoration, and the directly invoked uninstall hook. The restart uses a new native process and the same patched application and profile, with no macOS security settings changed. [Native Mac run and artifacts](https://github.com/zeusu-sato/ocean-window/actions/runs/33967589195). The binary and its release checksum are unchanged; the bundled README's earlier unverified-Mac note predates these checks. See the [Mac guide](macos.md).
 
 Applying the wallpaper requires write access to VS Code's installed workbench. Linux system packages may be owned by root; read-only Snap installations cannot be patched. An official `.tar.gz` extracted into a user-owned directory is an alternative. The extension never changes installation permissions or elevates itself.
+
+The [Mac native workflow](../.github/workflows/macos-native.yml) runs against published release VSIX files on standard GitHub-hosted Macs, for both architectures and both VS Code release channels. It verifies Microsoft's application archive checksum and the published extension checksum before installation. Evidence contains only reports, logs, and screenshots; test profiles and caches are excluded from uploaded artifacts.
 
 ## Restore and preview migration
 

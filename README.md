@@ -18,7 +18,9 @@ Browser layout preview using the actual wallpaper renderer. Photograph: [Matira 
 
 **Experimental: Ocean Window changes VS Code's installed workbench HTML and triggers its integrity warning.** It preserves the existing Content Security Policy and integrity checks. Installing the extension alone does not apply the wallpaper. The change affects every window and profile using that VS Code installation and may need reapplication after VS Code updates.
 
-Version 0.2.1 is a universal desktop preview for VS Code 1.130 or later, including Insiders. It removes the Windows x64 packaging restriction in 0.2.0. Enabling the wallpaper requires write access to the VS Code installation; on Linux, a user-owned official `.tar.gz` installation can provide this. Read-only Snap installations cannot be patched. See [tested platforms and publication status](docs/publication.md); macOS remains unverified.
+Version 0.2.1 is a universal desktop preview for VS Code 1.130 or later: **Windows, macOS (Intel and Apple Silicon), and Linux; both regular VS Code and Insiders**. It removes the Windows x64 packaging restriction in 0.2.0. The same VSIX runs on both Mac architectures; M1 is not a minimum requirement. See [tested platforms and publication status](docs/publication.md).
+
+Enabling the wallpaper requires write access to the VS Code installation. On Mac, install the application into Applications and launch that copy; see the [Mac guide](docs/macos.md). On Linux, a user-owned official `.tar.gz` installation can provide write access. Read-only Snap installations cannot be patched.
 
 ## A different sea outside your editor
 
