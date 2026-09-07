@@ -6,7 +6,7 @@ Launch status, 2026-09-06 (JST):
 - [Qiita article](https://qiita.com/DoroDango/items/87fd1e5331e5496ff206): published. Article source: [qiita.md](qiita.md).
 - [LinkedIn announcement](https://www.linkedin.com/feed/update/urn:li:activity:7502029349836075008/): published to Anyone as one English/Japanese post, with one application screenshot and photo credits at the end. The initial signed-out check showed both languages and the image.
 - Facebook: published to Friends. The account's default audience was not changed.
-- [Reddit submission](https://www.reddit.com/r/VSCodeExtensions/comments/1w83gzf/i_made_ocean_window_a_beach_view_for_your_empty/): submitted, then removed by Reddit's filters. Not publicly visible.
+- [Reddit announcement](https://www.reddit.com/r/VSCodeExtensions/comments/1w83gzf/i_made_ocean_window_a_beach_view_for_your_empty/): initially removed by Reddit's filters; public visibility confirmed on 2026-09-07 (JST). The public new-post listing includes it, and the post data returns its text and screenshot with no removal flag.
 - GitHub discovery topics and the Marketplace homepage link: updated.
 
 ## X: Japanese post
@@ -85,7 +85,7 @@ Screenshot photo: [Cala Macarella](https://commons.wikimedia.org/wiki/File:Cala_
 Post text written with AI assistance.
 ```
 
-Submitted with the same application screenshot and the `I made this` flair. Reddit's filters removed the post; no duplicate submission was made. Added the AI assistance disclosure to the existing post after checking Reddit's policy; the removal notice remains.
+Submitted with the same application screenshot and the `I made this` flair. Reddit's filters initially removed the post; no duplicate submission was made. Added the AI assistance disclosure to the existing post after checking Reddit's policy. On 2026-09-07 (JST), public post data and the community's new-post listing confirmed it was visible. The reason and time of the visibility change are unknown.
 
 ## References checked for this launch
 
