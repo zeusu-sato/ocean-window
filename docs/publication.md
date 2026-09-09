@@ -8,7 +8,9 @@ The final universal VSIX passed **14 native checks in official Windows x64 VS Co
 
 Package: `ocean-window-0.3.1.vsix`, **60,803 bytes**. SHA-256: `eb97715022b8dec02d2cde937da6a08b7a4b9123bf16c7cbbb1c5c31268132ce`.
 
-The [0.3.1 GitHub prerelease](https://github.com/zeusu-sato/ocean-window/releases/tag/v0.3.1) provides the VSIX for **Extensions → Install from VSIX**. Marketplace publication of 0.3.1 is pending; the last verified Marketplace release is 0.3.0 and its 1.130 minimum still applies there. Native 1.107 execution was checked on Windows x64; the Linux and Mac results below concern the earlier stated versions.
+The exact published VSIX also passed **14 native checks in each of four macOS 15 combinations**: Intel x64 and Apple Silicon arm64, each running regular VS Code **1.136.2** and Insiders **1.137.0**. Every report recorded the package SHA-256 above, successful cold restart, and unchanged application files. [Published-package Mac run and artifacts](https://github.com/zeusu-sato/ocean-window/actions/runs/34297723676).
+
+The [0.3.1 GitHub prerelease](https://github.com/zeusu-sato/ocean-window/releases/tag/v0.3.1) provides the VSIX for **Extensions → Install from VSIX**. Marketplace publication of 0.3.1 is pending; the last verified Marketplace release is 0.3.0 and its 1.130 minimum still applies there. Native 1.107 execution was checked on Windows x64; Linux and Mac execution at exactly 1.107 remains unverified.
 
 ## Published 0.3.0 release
 
