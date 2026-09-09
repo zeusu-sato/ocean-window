@@ -18,7 +18,7 @@ Actual Linux VS Code screenshot. Photograph: [Cala Macarella](https://commons.wi
 
 Version 0.3 uses the standard VS Code Webview API. Showing the scene does not change VS Code application files, require administrator access, or require a window reload. This removes the native write-permission requirement of 0.2.x on Linux system packages and read-only installations.
 
-The universal package targets **Windows, Linux, and macOS (Intel and Apple Silicon)**, in both regular VS Code and Insiders **1.130 or later**. M1 is not a minimum requirement. The installed VS Code build determines the supported operating-system versions. VS Code for the Web is not currently supported. See [publication and validation status](https://github.com/zeusu-sato/ocean-window/blob/main/docs/publication.md).
+From Ocean Window 0.3.1, the universal package targets **Windows, Linux, and macOS (Intel and Apple Silicon)**, in both regular VS Code and Insiders **1.107 or later**. Ocean Window 0.3.0 required VS Code 1.130; use 0.3.1 or later for VS Code 1.107. M1 is not a minimum requirement. The installed VS Code build determines the supported operating-system versions. VS Code for the Web is not currently supported. See [compatibility verification](https://github.com/zeusu-sato/ocean-window/blob/main/docs/vscode-1.107.md) and [publication and validation status](https://github.com/zeusu-sato/ocean-window/blob/main/docs/publication.md).
 
 ## A different sea outside your editor
 
@@ -70,7 +70,7 @@ For troubleshooting, see [Support](https://github.com/zeusu-sato/ocean-window/bl
 
 インストールすると、何も開いていないエディターに世界の海が映ります。コードや Markdown を開くと海のタブが閉じ、作業を終えてファイルを閉じると海が戻ります。
 
-0.3 から VS Code 標準の Webview を使う方式になりました。本体ファイルの変更、管理者権限、表示のための再読み込みは不要です。Windows・Linux・Intel Mac・Apple Silicon Mac、通常版・Insiders の共通パッケージです。VS Code 1.130 以降が対象です。
+0.3 から VS Code 標準の Webview を使う方式になりました。本体ファイルの変更、管理者権限、表示のための再読み込みは不要です。Windows・Linux・Intel Mac・Apple Silicon Mac、通常版・Insiders の共通パッケージです。Ocean Window 0.3.1 から VS Code 1.107 以降が対象です。0.3.0 は VS Code 1.130 以降が必要だったため、VS Code 1.107 では Ocean Window 0.3.1 以降を使用してください。
 
 このワークスペースで止めるには **Ocean Window: 海の表示をオフにする**、再開するには **Ocean Window: 海を表示する** を実行します。海のタブを閉じた場合は、ファイルを開いて閉じるか「海を表示する」を実行するまで再表示しません。
 

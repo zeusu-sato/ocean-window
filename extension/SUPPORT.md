@@ -1,8 +1,12 @@
 # Support
 
-Ocean Window 0.3 uses the standard Webview API in desktop VS Code 1.130 or later. The universal extension targets Windows, Linux, Intel Macs, and Apple Silicon Macs, with regular VS Code and Insiders.
+Ocean Window 0.3.1 and later use the standard Webview API in desktop VS Code 1.107 or later. The universal extension targets Windows, Linux, Intel Macs, and Apple Silicon Macs, with regular VS Code and Insiders.
 
 [Report an issue](https://github.com/zeusu-sato/ocean-window/issues) · [Full guide](https://github.com/zeusu-sato/ocean-window/blob/main/extension/README.md) · [GitHub releases](https://github.com/zeusu-sato/ocean-window/releases)
+
+## VS Code 1.107 cannot install the extension
+
+Ocean Window 0.3.0 declared VS Code 1.130 as its minimum, so VS Code 1.107 correctly refuses that package. Install Ocean Window **0.3.1 or later**, choosing the pre-release if prompted. The minimum was lowered after testing installation and the scene lifecycle in the official VS Code 1.107.0 desktop build. See [compatibility verification](https://github.com/zeusu-sato/ocean-window/blob/main/docs/vscode-1.107.md).
 
 ## The sea is missing
 

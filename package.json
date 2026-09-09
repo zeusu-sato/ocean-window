@@ -1,6 +1,6 @@
 {
   "name": "ocean-window",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "description": "World oceans in the empty VS Code editor",
   "type": "module",

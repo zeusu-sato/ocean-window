@@ -9,7 +9,7 @@ exports.activate = function activate(context) {
   let busy = false;
   function snapshot() {
     return {
-      platform: process.platform, architecture: process.arch, uid: process.getuid?.(),
+      platform: process.platform, architecture: process.arch, uid: process.getuid?.(), versions: process.versions,
       appRoot: vscode.env.appRoot, oceanActive: vscode.extensions.getExtension('zeusu-sato.ocean-window')?.isActive,
       activeEditor: vscode.window.activeTextEditor?.document.uri.fsPath,
       groups: vscode.window.tabGroups.all.map(group => ({
@@ -48,7 +48,13 @@ exports.activate = function activate(context) {
       try { response = { id: request.id, value: await act(request) }; }
       catch (error) { response = { id: request.id, error: String(error.stack || error) }; }
       await fs.writeFile(path.join(bridge, 'response.pending.json'), JSON.stringify(response));
-      await fs.rename(path.join(bridge, 'response.pending.json'), path.join(bridge, 'response.json'));
+      for (let attempt = 0; ; attempt++) {
+        try { await fs.rename(path.join(bridge, 'response.pending.json'), path.join(bridge, 'response.json')); break; }
+        catch (error) {
+          if (process.platform !== 'win32' || !['EPERM', 'EACCES', 'EBUSY'].includes(error.code) || attempt >= 49) throw error;
+          await new Promise(resolve => setTimeout(resolve, 20));
+        }
+      }
     } catch (error) { if (error.code !== 'ENOENT') console.error(error); }
     finally { busy = false; }
   }, 50);

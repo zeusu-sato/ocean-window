@@ -1,6 +1,6 @@
 # Ocean Window on Mac
 
-Intel and Apple Silicon Macs use the same universal Ocean Window package. Both regular VS Code and Insiders are supported, starting at VS Code 1.130. Ocean Window adds no M1 requirement; the Mac and macOS version still need to satisfy the requirements of the VS Code build you install.
+Intel and Apple Silicon Macs use the same universal Ocean Window package. From Ocean Window 0.3.1, both regular VS Code and Insiders are supported starting at VS Code 1.107; the published 0.3.0 package required 1.130. Ocean Window adds no M1 requirement; the Mac and macOS version still need to satisfy the requirements of the VS Code build you install. The [1.107 compatibility check](vscode-1.107.md) used a Windows desktop host; the Mac versions actually tested are listed below.
 
 ## Install
 

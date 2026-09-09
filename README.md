@@ -16,7 +16,7 @@ Install **Ocean Window** by **Zeusu Sato** from the Marketplace, choosing the pr
 
 Leave an editor group empty and the sea appears automatically. Opening a file closes the temporary Ocean Window tab; closing your files brings it back. **Ocean Window: Turn Off Ocean Window** stops it for this workspace, and **Ocean Window: Show Ocean Window** resumes it.
 
-**Version 0.3 uses the standard Webview API.** Fresh installation needs no application-file changes, administrator access, permission adjustment, or window reload. Its universal package targets Windows, Linux, Intel Macs, and Apple Silicon Macs, in regular VS Code and Insiders 1.130 or later. M1 is not a minimum requirement. See [publication and tested scope](docs/publication.md) and the [Mac guide](docs/macos.md).
+**Version 0.3 uses the standard Webview API.** Fresh installation needs no application-file changes, administrator access, permission adjustment, or window reload. From Ocean Window 0.3.1, its universal package targets Windows, Linux, Intel Macs, and Apple Silicon Macs, in regular VS Code and Insiders 1.107 or later. M1 is not a minimum requirement. Ocean Window 0.3.0 required VS Code 1.130; use 0.3.1 or later for VS Code 1.107. See [compatibility verification](docs/vscode-1.107.md), [publication and tested scope](docs/publication.md), and the [Mac guide](docs/macos.md).
 
 ## A different sea outside your editor
 

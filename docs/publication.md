@@ -1,5 +1,15 @@
 # Distribution and validation
 
+## 0.3.1 compatibility update
+
+Version **0.3.1** lowers the minimum desktop VS Code version to **1.107.0**. The previous 0.3.0 manifest required 1.130 even though the scene's APIs already existed in 1.107. The 13 runtime files are byte-for-byte identical to the published 0.3.0 package; only package metadata and bundled documentation changed. See the [API review and reproduction steps](vscode-1.107.md).
+
+The final universal VSIX passed **14 native checks in official Windows x64 VS Code 1.107.0**, including online photographs, decoded image previews, code/Markdown exclusion, chat focus, live settings, manual dismissal, enable/disable, a full application restart preserving scene state, unchanged application files, and no disposed-Webview errors. The general regression suite passed 70 Node tests and seven browser tests, with one POSIX-only case skipped on Windows. The final package was independently audited for identity, prerelease and universal metadata, archive integrity, runtime equivalence, and excluded private/test assets.
+
+Package: `ocean-window-0.3.1.vsix`, **60,803 bytes**. SHA-256: `eb97715022b8dec02d2cde937da6a08b7a4b9123bf16c7cbbb1c5c31268132ce`.
+
+The [0.3.1 GitHub prerelease](https://github.com/zeusu-sato/ocean-window/releases/tag/v0.3.1) provides the VSIX for **Extensions → Install from VSIX**. Marketplace publication of 0.3.1 is pending; the last verified Marketplace release is 0.3.0 and its 1.130 minimum still applies there. Native 1.107 execution was checked on Windows x64; the Linux and Mac results below concern the earlier stated versions.
+
 ## Published 0.3.0 release
 
 Version **0.3.0** replaces application-file patching with a standard Webview scene. The extension opens a temporary Ocean Window tab in an empty editor group, closes it when a real editor opens, and remembers its on/off state per workspace. Showing the scene requires no native file write, permission change, administrator access, or window reload. The existing extension ID remains `zeusu-sato.ocean-window`.

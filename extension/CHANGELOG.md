@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.1 — VS Code 1.107 compatibility
+
+- Lower the minimum VS Code version from 1.130 to 1.107. The standard scene uses APIs already available in 1.107; the previous requirement unnecessarily prevented installation.
+- Verify the packaged extension in native VS Code 1.107.0, including online photographs, file/editor switching, chat focus, settings, and state across an application restart.
+- Keep the universal package and the existing command for removing legacy native wallpapers.
+
 ## 0.3.0 — Standard editor scene
 
 - Display photographs through VS Code's standard Webview API, with no application-file changes, administrator access, or native integrity warning for new installations.
